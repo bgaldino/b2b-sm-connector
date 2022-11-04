@@ -1,0 +1,22 @@
+{
+  "packageDirectories": [
+    {
+      "path": "force-app",
+      "default": true,
+      "package": "B2B SM Connector Preview",
+      "versionName": "ver 0.1",
+      "versionNumber": "0.1.0.NEXT",
+      "unpackagedMetadata": {
+        "path": "dependencies/unmanaged/profiles"
+      }
+    },
+    {
+      "path": "dependencies/unmanaged/profiles",
+      "default": false
+    }
+  ],
+  "name": "b2b-sm-connector",
+  "namespace": "r1sm",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "56.0"
+}
