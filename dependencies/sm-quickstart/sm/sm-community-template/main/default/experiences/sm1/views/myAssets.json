@@ -1,0 +1,67 @@
+{
+  "appPageId" : "9ed1ba93-e365-4552-8f42-0719b5d0c55e",
+  "componentName" : "siteforce:dynamicLayout",
+  "id" : "1c033ddd-bc81-45cd-85a8-ce69f0286eea",
+  "label" : "My Assets",
+  "regions" : [ {
+    "components" : [ {
+      "componentAttributes" : {
+        "background" : "background: rgba(0,0,0,0)",
+        "backgroundOverlay" : "rgba(0,0,0,0.5)",
+        "contentAreaWidth" : 100,
+        "sectionConfig" : {
+          "UUID" : "03925a2a-97d2-49d7-a000-a1838a391640",
+          "columns" : [ {
+            "UUID" : "d55b6966-1fa8-4454-8908-7b5a17326251",
+            "columnKey" : "1",
+            "columnName" : "Column 1",
+            "columnWidth" : "12",
+            "seedComponents" : [ ]
+          } ]
+        },
+        "sectionHeight" : 300
+      },
+      "componentName" : "forceCommunity:section",
+      "id" : "03925a2a-97d2-49d7-a000-a1838a391640",
+      "regions" : [ {
+        "components" : [ {
+          "componentAttributes" : { },
+          "componentName" : "c:sm_myAssets",
+          "id" : "8f686b7b-b8d3-45c1-90aa-a0f06be851b9",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        } ],
+        "id" : "d55b6966-1fa8-4454-8908-7b5a17326251",
+        "regionLabel" : "Column 1",
+        "regionName" : "1",
+        "renditionMap" : { },
+        "type" : "region"
+      } ],
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "326b9c40-4798-4ed5-8605-ede32ece17b1",
+    "regionName" : "content",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "customHeadTags" : "",
+        "description" : "",
+        "title" : "My Assets"
+      },
+      "componentName" : "forceCommunity:seoAssistant",
+      "id" : "58558b4c-9c35-4298-8c86-cfc627f88d5d",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "ab545e40-edb9-4a2f-a63a-f0cb6ce80141",
+    "regionName" : "sfdcHiddenRegion",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "custom-my-assets"
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ConnectedApp xmlns="http://soap.sforce.com/2006/04/metadata">
+    <contactEmail>prkumar@docmation.com</contactEmail>
+    <label>SFLABS</label>
+    <oauthConfig>
+        <callbackUrl>https://www.callback.com</callbackUrl>
+        <certificate>MIIEcjCCA1qgAwIBAgIOAYNC230rAAAAAEAHsccwDQYJKoZIhvcNAQELBQAwfjEWMBQGA1UEAwwNQjJCUHJpdmF0ZUtleTEYMBYGA1UECwwPMDBEMkQwMDAwMDBEOGtJMRcwFQYDVQQKDA5TYWxlc2ZvcmNlLmNvbTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzELMAkGA1UECAwCQ0ExDDAKBgNVBAYTA1VTQTAeFw0yMjA5MTUyMDMzNDRaFw0yMzA5MTUxMjAwMDBaMH4xFjAUBgNVBAMMDUIyQlByaXZhdGVLZXkxGDAWBgNVBAsMDzAwRDJEMDAwMDAwRDhrSTEXMBUGA1UECgwOU2FsZXNmb3JjZS5jb20xFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xCzAJBgNVBAgMAkNBMQwwCgYDVQQGEwNVU0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDeJjSsEYAweG5U0asjkCoLxMh7aE7SKYNhmyWnZ2mFH/ovGDy3de2iiuRJmo9S0XZ/HVOPpualxHRpZ20g1XVGShXGlY3MnIEF0m0T3GWFP2SCrdUig+UcrKq1ojz+0xWZO5//Et927Qieg+qLncVMerxC3bmTfx38HswVHoA6bM8dmg+dDIJpIdd5IrSzZKkA47x8Ex0eveXXrdc3Ex7xoV4NPPBo8VCI1HNHtRSWyRejQA4/rN9IWIBOD3fGzgqgqeEKZ7PAsNg1d0UlgL/CscvkZBY13BqO6kFx1cYpEepQbQbb6pfYNjEVSvryunW6y4Svde3Yjr75/o9a/1tZAgMBAAGjge0wgeowHQYDVR0OBBYEFJnn/MMhNSep/wa3AwbnXymDOHOwMA8GA1UdEwEB/wQFMAMBAf8wgbcGA1UdIwSBrzCBrIAUmef8wyE1J6n/BrcDBudfKYM4c7ChgYOkgYAwfjEWMBQGA1UEAwwNQjJCUHJpdmF0ZUtleTEYMBYGA1UECwwPMDBEMkQwMDAwMDBEOGtJMRcwFQYDVQQKDA5TYWxlc2ZvcmNlLmNvbTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzELMAkGA1UECAwCQ0ExDDAKBgNVBAYTA1VTQYIOAYNC230rAAAAAEAHsccwDQYJKoZIhvcNAQELBQADggEBAIbBGcgcuaueyoFbR0IhGmVFXQWzeL93yRvHWSwe0+ZO5E2+Ixw34SewRddt0u4J2P0QYQYxBEzJIdO73hqWFpQB1vKEddojotTFNQjfj+SdnVmr3oWY6z5jHJYXYz5xvUI04gEEsIFsp1pmbXHTdev1xNNWfHUjnELLr9Glq1UwhfW6+KJ1RA2Nz3M0r27PBlnyLK1nscWIEB5DIAwHuW9mPAiN0dTsy7uFxrTo1fAK00LfVPp7em4OD1b1xiiUFHYLYGmVQEWPYOGWRUK+dh7zQYggLBAg47nSFKQooN39RZqT5MDPs3sb/4AeR0Aq7SrBz47R7cZniKabxZKMUrc=</certificate>
+        <!-- <consumerKey>3MVG9FxR3Tq3eZN9mQ_8mbWX9a7zQcL5m1gZ7G5IXjPSYMziWY9dvw9zxIqqRUJ3pdzJmnTy_U2O8GKo9sHXF</consumerKey> -->
+        <isAdminApproved>true</isAdminApproved>
+        <isConsumerSecretOptional>false</isConsumerSecretOptional>
+        <isIntrospectAllTokens>false</isIntrospectAllTokens>
+        <isSecretRequiredForRefreshToken>true</isSecretRequiredForRefreshToken>
+        <scopes>Basic</scopes>
+        <scopes>Api</scopes>
+        <scopes>Web</scopes>
+        <scopes>Full</scopes>
+        <scopes>Chatter</scopes>
+        <scopes>CustomApplications</scopes>
+        <scopes>RefreshToken</scopes>
+        <scopes>OpenID</scopes>
+        <scopes>CustomPermissions</scopes>
+        <scopes>Wave</scopes>
+        <scopes>Eclair</scopes>
+        <scopes>Pardot</scopes>
+        <scopes>Lightning</scopes>
+        <scopes>Content</scopes>
+        <scopes>CDPIngest</scopes>
+        <scopes>CDPProfile</scopes>
+        <scopes>CDPQuery</scopes>
+        <scopes>Chatbot</scopes>
+    </oauthConfig>
+    <oauthPolicy>
+        <ipRelaxation>ENFORCE</ipRelaxation>
+        <refreshTokenPolicy>infinite</refreshTokenPolicy>
+    </oauthPolicy>
+    <permissionSetName>RSM SF User</permissionSetName>
+    <profileName>System Administrator</profileName>
+</ConnectedApp>

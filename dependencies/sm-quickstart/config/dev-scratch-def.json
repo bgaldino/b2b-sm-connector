@@ -1,0 +1,35 @@
+{
+  "orgName": "Salesforce Subscription Management",
+  "country": "US",
+  "edition": "Developer",
+  "features": ["Communities","B2BCommerce","Sites","RevSubscriptionManagement","OrderSaveLogicEnabled","MultiCurrency","FinanceLogging","CPQ"],
+  "settings": {
+    "lightningExperienceSettings": {
+      "enableS1DesktopEnabled": true
+    },
+    "mobileSettings": { 
+      "enableS1EncryptedStoragePref2": true
+    },
+    "subscriptionManagementSettings": {
+      "enableSubscriptionManagement": true
+    },
+    "orderSettings":{
+      "enableOrders": true,
+      "enableEnhancedCommerceOrders": true,
+      "enableOrderEvents": true,
+      "enableOptionalPricebook": true,
+      "enableZeroQuantity": true,
+      "enableNegativeQuantity": true
+    },
+    "quoteSettings": {
+      "enableQuote": true
+    },
+    "SiteSettings":{
+      "enableSitesRecordReassignOrgPref":true,
+      "enableTopicsInSites":true,
+      "enableProxyLoginICHeader":true,
+      "enableVisualforceApiAccessAllowed":true,
+      "enableWebruntimeBYOTemplate":true
+    }
+  }
+}

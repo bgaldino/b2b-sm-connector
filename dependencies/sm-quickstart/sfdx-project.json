@@ -1,0 +1,47 @@
+{
+  "packageDirectories": [
+    {
+      "path": "sm/sm-base",
+      "default": true
+    },
+    {
+      "path": "sm/sm-asset-management",
+      "default": false
+    },
+    {
+      "path": "sm/sm-my-community",
+      "default": false
+    },
+    {
+      "path": "sm/sm-utility-tables",
+      "default": false
+    },
+    {
+      "path": "sm/sm-cancel-asset",
+      "default": false
+    },
+    {
+      "path": "sm/sm-refund-credit",
+      "default": false
+    },
+    {
+      "path": "sm/sm-renewals",
+      "default": false
+    },
+    {
+      "path": "sm/sm-nocommunity",
+      "default": false
+    },
+    {
+      "path": "sm/sm-temp",
+      "default": false
+    },
+    {
+      "path": "sm/sm-community-template",
+      "default": false
+    }
+  ],
+  "namespace": "",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "55.0"
+}

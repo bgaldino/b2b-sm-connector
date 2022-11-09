@@ -1,0 +1,14 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "TaxTreatment",
+                "referenceId": "TaxTreatmentRef1"
+            },
+            "Name": "Default Tax Treatment",
+            "Status": "Draft",
+            "TaxEngineId":"@TaxEngineRef1",
+            "IsTaxable": true
+        }
+    ]
+}

@@ -1,0 +1,23 @@
+
+
+  {
+    "records": [
+        {
+            "attributes": {
+                "type": "TaxEngine",
+                "referenceId": "TaxEngineRef1"
+            },
+            "TaxEngineName": "Default Tax Engine",
+            "TaxEngineProviderId": "@TaxEngineProviderRef1",
+            "SellerCode": "Billing2",
+            "Status": "Active",
+            "TaxEngineCity": "Irvine",
+            "TaxEngineCountry": "United States",
+            "TaxEngineCountryCode": "US",
+            "TaxEnginePostalCode": "92614",
+            "TaxEngineState": "California",
+            "TaxEngineStateCode": "CA",
+            "MerchantCredentialId": "INSERT_NAMED_CRED_ID"
+        }
+    ]
+}

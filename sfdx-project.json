@@ -1,22 +1,35 @@
 {
-  "packageDirectories": [
-    {
-      "path": "force-app",
-      "default": true,
-      "package": "B2B SM Connector Preview",
-      "versionName": "ver 0.1",
-      "versionNumber": "0.1.0.NEXT",
-      "unpackagedMetadata": {
-        "path": "dependencies/unmanaged/profiles"
-      }
-    },
-    {
-      "path": "dependencies/unmanaged/profiles",
-      "default": false
+    "packageDirectories": [
+        {
+            "path": "src",
+            "default": true,
+            "package": "Subscription Management With Namespace",
+            "versionName": "ver 0.1",
+            "versionNumber": "0.1.0.NEXT",
+            "unpackagedMetadata": {
+                "path": "dependencies/unmanaged/profiles"
+            }
+        },
+        {
+            "path": "dependencies\\unmanaged\\profiles",
+            "default": false
+        }
+    ],
+    "namespace": "r1sm",
+    "sfdcLoginUrl": "https://login.salesforce.com",
+    "sourceApiVersion": "56.0",
+    "packageAliases": {
+        "Subscription Management With Namespace": "0Ho5b0000008OJhCAM",
+        "Subscription Management With Namespace@0.1.0-1": "04t5b0000027Pn4AAE",
+        "Subscription Management With Namespace@0.1.0-2": "04t5b0000027Pn9AAE",
+        "Subscription Management With Namespace@0.1.0-4": "04t5b0000027PnJAAU",
+        "Subscription Management With Namespace@0.1.0-5": "04t5b0000027PnOAAU",
+        "Subscription Management With Namespace@0.1.0-6": "04t5b0000027PnTAAU",
+        "Subscription Management With Namespace@0.1.0-7": "04t5b0000027PnYAAU",
+        "Subscription Management With Namespace@0.1.0-8": "04t5b0000027PniAAE",
+        "Subscription Management With Namespace@0.1.0-9": "04t5b0000027PnnAAE",
+        "Subscription Management With Namespace@0.1.0-10": "04t5b0000027PnsAAE",
+        "Subscription Management With Namespace@0.1.0-11": "04t5b0000027PnxAAE",
+        "Subscription Management With Namespace@0.1.0-12": "04t5b0000027Po2AAE"
     }
-  ],
-  "name": "b2b-sm-connector",
-  "namespace": "r1sm",
-  "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "56.0"
 }

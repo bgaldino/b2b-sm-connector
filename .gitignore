@@ -3,12 +3,10 @@
 # For useful gitignore templates see: https://github.com/github/gitignore
 
 # Salesforce cache
-.sf/
 .sfdx/
 .localdevserver/
 session.properties
 metadata
-deploy-options.json
 
 # LWC VSCode autocomplete
 **/lwc/jsconfig.json
@@ -40,9 +38,6 @@ Thumbs.db
 ehthumbs.db
 [Dd]esktop.ini
 $RECYCLE.BIN/
-
-# Local environment variables
-.env
 
 # IlluminatedCloud2
 IlluminatedCloud/

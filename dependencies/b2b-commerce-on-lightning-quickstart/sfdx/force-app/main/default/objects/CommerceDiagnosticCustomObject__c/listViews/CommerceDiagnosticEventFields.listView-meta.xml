@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CommerceDiagnosticEventFields</fullName>
+    <columns>CREATED_DATE</columns>
+    <columns>Context_Id__c</columns>
+    <columns>Context_Id_2__c</columns>
+    <columns>User__c</columns>
+    <columns>Service_Name__c</columns>
+    <columns>Operation__c</columns>
+    <columns>Operation_Stage__c</columns>
+    <columns>Operation_Status__c</columns>
+    <columns>Error_Message__c</columns>
+    <columns>Operation_Time__c</columns>
+    <columns>Operation_State__c</columns>
+    <columns>Context_Map__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>Commerce Diagnostic Event Fields</label>
+</ListView>

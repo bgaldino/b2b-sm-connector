@@ -1,5 +1,5 @@
 {
-  "orgName": "Salesforce",
+  "orgName": "RafterOne",
   "edition": "Developer",
   "features": ["Communities", "B2BCommerce", "Sites", "OrderManagement", "EnableSetPasswordInApi", "DebugApex",
      "RevSubscriptionManagement", "OrderSaveLogicEnabled", "MultiCurrency", "StateAndCountryPicklist"],

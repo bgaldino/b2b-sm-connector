@@ -1,0 +1,13 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "TaxEngineProvider",
+                "referenceId": "TaxEngineProviderRef1"
+            },
+            "DeveloperName": "DefaultTaxEngineProvider",
+            "MasterLabel": "Default Tax Engine Provider",
+            "ApexAdapterId": "01pP000000IJC32IAH"
+        }
+    ]
+}

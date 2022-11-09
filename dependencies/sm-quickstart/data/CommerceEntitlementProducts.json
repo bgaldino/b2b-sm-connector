@@ -1,0 +1,36 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "CommerceEntitlementProduct",
+                "referenceId": "CommerceEntitlementProductRef1"
+            },
+            "PolicyId": "1CeP000000000WgKAI",
+            "ProductId": "@Product2Ref1"
+        },
+        {
+            "attributes": {
+                "type": "CommerceEntitlementProduct",
+                "referenceId": "CommerceEntitlementProductRef2"
+            },
+            "PolicyId": "1CeP000000000WgKAI",
+            "ProductId": "@Product2Ref2"
+        },
+        {
+            "attributes": {
+                "type": "CommerceEntitlementProduct",
+                "referenceId": "CommerceEntitlementProductRef3"
+            },
+            "PolicyId": "1CeP000000000WgKAI",
+            "ProductId": "@Product2Ref3"
+        },
+        {
+            "attributes": {
+                "type": "CommerceEntitlementProduct",
+                "referenceId": "CommerceEntitlementProductRef4"
+            },
+            "PolicyId": "1CeP000000000WgKAI",
+            "ProductId": "@Product2Ref4"
+        }
+    ]
+}
