@@ -71,4 +71,11 @@
         <shortDescription>Contains list of values that should be hidden on Config Page</shortDescription>
         <value>Consumer Key</value>
     </labels>
+    <labels>
+        <fullName>Org_Base_Url</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Org Base Url</shortDescription>
+        <value>https://login.salesforce.com</value>
+    </labels>
 </CustomLabels>
