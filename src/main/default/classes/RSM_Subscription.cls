@@ -9,7 +9,7 @@
  * 1.0   05-20-2022   Prabhat Kumar  Initial Version
 **/
 
-global without sharing class RSM_Subscription {
+global with sharing class RSM_Subscription {
 
     private final static Integer PAGE_SIZE = 12;
     private static final DCM_Logger logger = DCM_Logger.getInstance(B2B_SetupConstants.MANAGE_SUBSCRIPTION);
@@ -69,14 +69,14 @@ global without sharing class RSM_Subscription {
     
                     List<Product2> products =  [SELECT Id, Name, IsActive, ProductCode, CurrencyIsoCode, StockKeepingUnit, Family, Description, 
                                                 (SELECT Id, ProductSellingModel.Name from ProductSellingModelOptions) 
-                                                FROM Product2 WHERE Id IN :productIdsList];
+                                                FROM Product2 WHERE Id IN :productIdsList WITH SECURITY_ENFORCED];
     
                     Map<String, Product2> productsMap = new Map<String, Product2>();
                     for(Product2 product :products ){
                         productsMap.put(product.Id, product);
                     }
     
-                    List<AssetStatePeriod> assetsPeriods =  [SELECT Id, EndDate, StartDate, Quantity, AssetId FROM AssetStatePeriod WHERE AssetId IN :assetIdsList];
+                    List<AssetStatePeriod> assetsPeriods =  [SELECT Id, EndDate, StartDate, Quantity, AssetId FROM AssetStatePeriod WHERE AssetId IN :assetIdsList WITH SECURITY_ENFORCED];
     
                     Map<String, AssetStatePeriod> assetPeriodMap = new Map<String, AssetStatePeriod>();
                     for(AssetStatePeriod assetPeri :assetsPeriods ){
@@ -84,7 +84,7 @@ global without sharing class RSM_Subscription {
                     }
     
     
-                    List<BillingScheduleGroup> assetsSchedules = new List<BillingScheduleGroup>([SELECT ReferenceEntityId, (SELECT Id, NextBillingDate FROM BillingScheduleGroupToBillingSchedule ORDER BY NextBillingDate DESC LIMIT 1) FROM BillingScheduleGroup WHERE ReferenceEntityId IN :assetIdsList]); 
+                    List<BillingScheduleGroup> assetsSchedules = new List<BillingScheduleGroup>([SELECT ReferenceEntityId, (SELECT Id, NextBillingDate FROM BillingScheduleGroupToBillingSchedule ORDER BY NextBillingDate DESC LIMIT 1) FROM BillingScheduleGroup WHERE ReferenceEntityId IN :assetIdsList WITH SECURITY_ENFORCED]); 
                     Map<String, BillingScheduleGroup> assetScheduleMap = new Map<String, BillingScheduleGroup>();
                     for(BillingScheduleGroup a :assetsSchedules ){
                         assetScheduleMap.put(a.ReferenceEntityId, a);
@@ -111,7 +111,7 @@ global without sharing class RSM_Subscription {
                     if(memberNetwork.size() > 1){
 
                         //get websoter id
-                        tempWebstoreName = [SELECT WebStoreId, Webstore.Name  FROM WebStoreNetwork WHERE NetworkId = :communityId LIMIT 1].Webstore.Name;
+                        tempWebstoreName = [SELECT WebStoreId, Webstore.Name  FROM WebStoreNetwork WHERE NetworkId = :communityId WITH SECURITY_ENFORCED LIMIT 1].Webstore.Name;
 
                         webStoreName = tempWebstoreName.replaceAll( '\\s+', '');
 

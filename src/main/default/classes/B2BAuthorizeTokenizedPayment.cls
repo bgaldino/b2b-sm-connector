@@ -91,7 +91,7 @@ public class B2BAuthorizeTokenizedPayment {
     private static String getPaymentGatewayId(String webStoreId) {
         String paymentGatewayId = null;
         try {
-            paymentGatewayId = [SELECT Integration FROM StoreIntegratedService WHERE ServiceProviderType='Payment' AND StoreId=:webStoreId].Integration;
+            paymentGatewayId = [SELECT Integration FROM StoreIntegratedService WHERE ServiceProviderType='Payment' AND StoreId=:webStoreId WITH SECURITY_ENFORCED].Integration;
         } catch (Exception e) {
             // For debug logs
             System.debug('Error querying the payment integration from StoreIntegratedService: ' + e.getMessage());

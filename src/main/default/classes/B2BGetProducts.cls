@@ -8,7 +8,7 @@
  * Ver   Date         Author        Modification
  * 1.0   03-03-2023   Raja Patnaik  Initial Version
 **/
-public without sharing class B2BGetProducts {
+public with sharing class B2BGetProducts {
 
     public static final String baseUrl = 'https://sflabsdev-dev-ed.lightning.force.com/services/data/v53.0/';
     public static final String calculatePrice = '/commerce/pricing/salestransaction/actions/calculate-price';
@@ -26,9 +26,29 @@ public without sharing class B2BGetProducts {
     public static String BEARER = 'Bearer';
     private static final Integer NUM_OF_MEDIA_IDS_PER_REQUEST = 150;
     private static final DCM_Logger logger = DCM_Logger.getInstance(B2B_SetupConstants.CHECKOUT_FLOW);
+    
+    
+    public static void getExpenses() {
+        String [] expenseAccessFields = new String [] {'Name', 'PricingTerm','PricingTermUnit', 'SellingModelType'};
+
+    // Obtain the field name/token map for the Expense object
+    Map<String,Schema.SObjectField> m = Schema.SObjectType.ProductSellingModel.fields.getMap();
+
+    for (String fieldToCheck : expenseAccessFields) {
+
+        // Check if the user has access to view field
+        if (!m.get(fieldToCheck).getDescribe().isAccessible()) {
+
+            // Pass error to client
+            //throw new System.NoAccessException();
+            logger.error(new System.NoAccessException());
+            logger.flush();
+        }
+    }     
+    }
 
     @AuraEnabled(cacheable=true)
-    public static ProductDetail getProduct(String productId) {
+    public static ProductDetail getProduct(String productId, String effAccId) {
         List<ProductDetail> response = new List<ProductDetail>();
 
         try {
@@ -38,7 +58,7 @@ public without sharing class B2BGetProducts {
             // WebStorePricebook webstorePricebooks;
             List<WebStorePricebook> webstorePricebooks = new List<WebStorePricebook>();
             if(!test.isRunningTest()) {
-         	    webstorePricebooks = [SELECT Id, Name, WebStoreId, Pricebook2Id, IsActive FROM WebStorePricebook WHERE WebStoreId = :storeId LIMIT 1];   
+                webstorePricebooks = [SELECT Id, Name, WebStoreId, Pricebook2Id, IsActive FROM WebStorePricebook WHERE WebStoreId = :storeId LIMIT 1];   
             } else {
                 webstorePricebooks = [SELECT Id, Name, WebStoreId, Pricebook2Id, IsActive FROM WebStorePricebook WHERE WebStore.Name = 'Sflabs' LIMIT 1];   
             }
@@ -46,17 +66,91 @@ public without sharing class B2BGetProducts {
             String priceBookId = '';
             if(webstorePricebooks.size() > 0) {
                 priceBookId = webstorePricebooks[0].Pricebook2Id;
-                List<Product2> products =  [Select Id, Name, ProductCode, CurrencyIsoCode, StockKeepingUnit, Family,Description, (SELECT Id, Name,UnitPrice, Pricebook2Id, ProductSellingModelId, ProductSellingModel.Name, ProductSellingModel.PricingTerm, ProductSellingModel.PricingTermUnit, ProductSellingModel.SellingModelType FROM PricebookEntries WHERE IsActive=true AND Pricebook2Id=:priceBookId ) FROM Product2 WHERE IsActive = true AND Id=:productId];
+                //getExpenses();
+                ConnectApi.ProductDetail prodDetail = ConnectApi.CommerceCatalog.getProduct(storeId, productId, effAccId, null, false, null, false, false, false, false, false, false, false);
+                System.debug('prodDetail---- '+json.serialize(prodDetail));
+                productIds.add(prodDetail.id);
+                List<ConnectApi.ProductSellingModel> psm = prodDetail.productSellingModels;
+                System.debug('psm---- '+psm);
+                list<String> psmIds = new list<String>();
+                list<ProductSellingModelWrapper> psmWrapList = new list<ProductSellingModelWrapper>();
+                map<String,ConnectApi.ProductSellingModel> psmMap = new map<String,ConnectApi.ProductSellingModel>();
+                for(ConnectApi.ProductSellingModel obj : psm){
+                    psmIds.add(obj.id);
+                    psmMap.put(obj.id, obj);
+                    /*ProductSellingModelWrapper w = new ProductSellingModelWrapper();
+                    w.ProductSellingModelId = obj.id;
+                    w.Name = obj.name;
+                    w.SellingModelType = obj.sellingModelType; 
+                    w.pricingTerm = obj.pricingTerm;
+                    w.PricingTermUnit = obj.pricingTermUnit;
+                    psmWrapList.add(w);*/
+                }
+                System.debug('psmWrapList---- '+psmWrapList);
+                System.debug('psmMap---- '+psmMap);
+                ConnectApi.ProductPrice prodPrice = ConnectApi.CommerceStorePricing.getProductPrice(storeId, productId, effAccId, psmIds);
+                System.debug('prodPrice---- '+json.serialize(prodPrice));
+                map<String,object> peMap = new map<String,object>();
+                List<ConnectApi.ProductPriceEntry> pEntries= prodPrice.productPriceEntries;
+                list<String> pbeIds = new list<String>();
+                for(ConnectApi.ProductPriceEntry o : pEntries){
+                    pbeIds.add(o.pricebookEntryId);
+                }
+                System.debug('pbeIds---- '+pbeIds);
+                Map<String,String> priceVsEntryMap = new Map<String,String>();
+                list<PricebookEntry> pbList = [SELECT id, Pricebook2Id from PricebookEntry where id =: pbeIds];
+                for(PricebookEntry pbEnt : pbList){
+                    priceVsEntryMap.put(pbEnt.Id , pbEnt.Pricebook2Id);
+                }
+                
+                List<ProductPricingDetail> ppdList = new List<ProductPricingDetail>();
+                for(ConnectApi.ProductPriceEntry pe : pEntries){
+                   ConnectApi.ProductSellingModel obj = psmMap.get(pe.productSellingModelId);
+                   //object pEntry = peMap.get(pe.productSellingModelId);
+                   
+                   ProductSellingModelWrapper w = new ProductSellingModelWrapper();
+                    w.ProductSellingModelId = (String)obj.id;
+                    w.Name = (String)obj.name;
+                    w.SellingModelType = String.valueOf(obj.sellingModelType); 
+                    w.pricingTerm = obj.pricingTerm;
+                    w.PricingTermUnit = String.valueOf(obj.pricingTermUnit);
+                    
+                   ProductPricingDetail pObj = new ProductPricingDetail();
+                   pObj.ProductSellingModelId = (String)pe.productSellingModelId;
+                   pObj.Id = (String)pe.pricebookEntryId;
+                   pObj.ProductSellingModel = w;
+                   //pObj.Pricebook2Id = (String)priceBookId;
+                   pObj.Pricebook2Id = (String)priceVsEntryMap.get(pe.pricebookEntryId);
+                   pObj.Product2Id = (String)productId;
+                   pObj.UnitPrice = pe.unitPrice;
+                   ppdList.add(pObj);
+                }
+                ProductDetail p = new ProductDetail();
+                p.id = prodDetail.id;
+                p.product = prodDetail;
+                p.PricebookEntries = ppdList;
+                response.add(p);
+                
+                
+                
+                list<PricebookEntry> pbes = [SELECT Id, Name,UnitPrice, Pricebook2Id, ProductSellingModelId, ProductSellingModel.Name, ProductSellingModel.PricingTerm, ProductSellingModel.PricingTermUnit, ProductSellingModel.SellingModelType FROM PricebookEntry WHERE IsActive=true AND Pricebook2Id=:priceBookId AND Product2Id =:productId];
+                
+                List<Product2> products =  [Select Id, Name, ProductCode, CurrencyIsoCode, StockKeepingUnit, Family,Description, (SELECT Id, Name,UnitPrice, Pricebook2Id, ProductSellingModelId, ProductSellingModel.Name, ProductSellingModel.PricingTerm, ProductSellingModel.PricingTermUnit, ProductSellingModel.SellingModelType FROM PricebookEntries WHERE IsActive=true AND Pricebook2Id=:priceBookId ) FROM Product2 WHERE IsActive = true AND Id=:productId WITH SECURITY_ENFORCED];
                 for(Product2 product :products ) {
                     productIds.add(product.Id);
                 }
+                logger.info('Product on PDP: ' + products);
                 Map<String, String> productImageUrlsByProductIds = getProdImages(productIds, null);
+                System.debug('productImageUrlsByProductIds---- '+json.serialize(productImageUrlsByProductIds));
                 for(Product2 product :products ) {
-                    ProductDetail pd = new ProductDetail();
+                    for(PriceBookEntry pbe : product.PricebookEntries) {
+                        logger.info('Pricebookentry: ' + pbe);
+                    }
+                   /* ProductDetail pd = new ProductDetail();
                     pd.id = product.Id;
                     pd.imageUrl =  productImageUrlsByProductIds.containsKey(pd.id) ? productImageUrlsByProductIds.get(pd.id) : '';
                     pd.product = product;
-                    response.add(pd);
+                    response.add(pd);*/
                 }
             }
         } catch (Exception ex) {
@@ -64,7 +158,7 @@ public without sharing class B2BGetProducts {
         } finally {
             logger.flush();
         }
-
+        System.debug('response---- '+response[0]);
         return response.size() > 0?response[0]:null;
     }
 
@@ -123,7 +217,7 @@ public without sharing class B2BGetProducts {
             Http http = new Http();
             HttpRequest request = new HttpRequest();
             if(test.isRunningTest()) {
-         	    request.setHeader('Authorization', 'Bearer ');   
+                request.setHeader('Authorization', 'Bearer ');   
             } else {
                 request.setHeader('Authorization', 'Bearer ' + B2B_CreateUserAccessToken.getAdminAccessToken());
             }
@@ -165,7 +259,7 @@ public without sharing class B2BGetProducts {
 
             HttpRequest request = new HttpRequest();
             if(test.isRunningTest()) {
-         	    request.setHeader('Authorization', 'Bearer ');   
+                request.setHeader('Authorization', 'Bearer ');   
             } else {
                 request.setHeader('Authorization', 'Bearer ' + B2B_CreateUserAccessToken.getAdminAccessToken());
             }
@@ -288,7 +382,7 @@ public without sharing class B2BGetProducts {
         try{
 
         
-        id communityId =   [SELECT id, name FROM Network where id =: commId LIMIT 1].id;
+        id communityId =   [SELECT id, name FROM Network where id =: commId WITH SECURITY_ENFORCED LIMIT 1].id;
 
         List<ProductMedia> prodMedia =
                 [
@@ -296,6 +390,7 @@ public without sharing class B2BGetProducts {
                     ProductId
                     FROM ProductMedia
                     WHERE ProductId IN :productIds
+                    WITH SECURITY_ENFORCED
                     ORDER BY SortOrder
                 ];
             
@@ -359,10 +454,41 @@ public without sharing class B2BGetProducts {
 
     public class ProductDetail{
         @AuraEnabled 
-        public Product2 product { get; set; }
+        //public Product2 product { get; set; }
+        public ConnectApi.ProductDetail product { get; set; }
         @AuraEnabled 
         public String id { get; set; }
         @AuraEnabled 
         public String imageUrl { get; set; }
+        @AuraEnabled 
+        public List<ProductPricingDetail> PricebookEntries { get; set; }
+    }
+     public class ProductPricingDetail{
+        @AuraEnabled 
+        public String Pricebook2Id { get; set; }
+        @AuraEnabled 
+        public String Product2Id { get; set; }
+        @AuraEnabled 
+        public String ProductSellingModelId { get; set; }
+        @AuraEnabled 
+        public String Id { get; set; }
+        @AuraEnabled 
+        public String UnitPrice { get; set; }
+        @AuraEnabled 
+        public ProductSellingModelWrapper ProductSellingModel { get; set; }
+    }
+    public class ProductSellingModelWrapper{
+        @AuraEnabled 
+        public String Name { get; set; }
+        @AuraEnabled 
+        //public ConnectApi.SellingModelType SellingModelType { get; set; }
+        public String SellingModelType { get; set; }
+        @AuraEnabled 
+        //public ConnectApi.PricingTermUnit PricingTermUnit { get; set; }
+        public String PricingTermUnit { get; set; }
+        @AuraEnabled 
+        public Integer pricingTerm { get; set; }
+        @AuraEnabled 
+        public String ProductSellingModelId { get; set; }
     }
 }

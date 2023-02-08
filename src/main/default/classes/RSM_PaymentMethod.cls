@@ -7,7 +7,7 @@
  * This class is used to handle Billing and Shipping address and renewal payment.
 **/
 
-global without sharing class RSM_PaymentMethod {
+global with sharing class RSM_PaymentMethod {
 
     private static final DCM_Logger logger = DCM_Logger.getInstance(B2B_SetupConstants.BUYER_INFO_UPDATE);
 

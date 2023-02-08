@@ -8,7 +8,7 @@
  * Ver   Date         Author        Modification
  * 1.0   05-20-2022   Prabhat Kumar  Initial Version
 **/
-global without sharing class RSM_CancelAsset {
+global with sharing class RSM_CancelAsset {
 
   private static final DCM_Logger logger = DCM_Logger.getInstance(B2B_SetupConstants.ASSET_CANCELLATION);
   /**
@@ -21,7 +21,7 @@ global without sharing class RSM_CancelAsset {
     Map<String,object> resultData = new Map<String,object>();
     try {
 
-      List<BillingScheduleGroup> billingSechd =  [select id, StartDate, ReferenceEntity.Name, EffectiveNextBillingDate, EndDate from BillingScheduleGroup where ReferenceEntityId =: assetId LIMIT 1];
+      List<BillingScheduleGroup> billingSechd =  [select id, StartDate, ReferenceEntity.Name, EffectiveNextBillingDate, EndDate from BillingScheduleGroup where ReferenceEntityId =: assetId WITH SECURITY_ENFORCED LIMIT 1];
 
       if(billingSechd.size() > 0){
 
@@ -62,7 +62,7 @@ global without sharing class RSM_CancelAsset {
       
 
       string cancelDate = '';
-     List<BillingScheduleGroup> billingSechd =  [select id, EffectiveNextBillingDate, EndDate from BillingScheduleGroup where ReferenceEntityId =: assetId];
+     List<BillingScheduleGroup> billingSechd =  [select id, EffectiveNextBillingDate, EndDate from BillingScheduleGroup where ReferenceEntityId =: assetId WITH SECURITY_ENFORCED];
       if(billingSechd.size() > 0){
 
         cancelDate = string.valueof(billingSechd[0].EffectiveNextBillingDate)+'T00:00:00-00:00';

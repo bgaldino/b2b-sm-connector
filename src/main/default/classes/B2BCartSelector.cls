@@ -40,7 +40,7 @@ public with sharing class B2BCartSelector {
     String query =
       ' SELECT ' +
       getQueryFieldString() +
-      ' FROM WebCart WHERE Id=:cartId AND Status IN :statusList LIMIT 1 ';
+      ' FROM WebCart WHERE Id=:cartId AND Status IN :statusList WITH SECURITY_ENFORCED LIMIT 1 ';
     List<WebCart> webCartList = Database.query(query);
     if (!webCartList.isEmpty()) {
       return webCartList.get(0);

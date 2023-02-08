@@ -40,7 +40,7 @@ global with sharing class UpdateCartItemfromQuoteLine {
         //Query Cart item and update the price if discount applied.
             String cartItemSOQL = 'SELECT ' + RSM_Utils.getAllObjectFields(String.valueOf(CartItem.getSObjectType())) +
                 ' FROM ' + String.valueOf(CartItem.getSObjectType()) +
-                ' WHERE Id IN : cartItemIds LIMIT 49999';
+                ' WHERE Id IN : cartItemIds WITH SECURITY_ENFORCED LIMIT 49999';
             
             List<CartItem> cartItemLst = (List<CartItem>)Database.query(cartItemSOQL);
             List<CartItem> updatedCartItemLst = new List<CartItem>();

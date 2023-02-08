@@ -5,7 +5,7 @@ global class B2B_SMOrderSchedulable implements Database.Batchable<SObject>, Sche
        
         global Database.QueryLocator start(Database.BatchableContext bc){
             try {
-                return Database.getQueryLocator('SELECT Id, NextBillingDate, ReferenceEntityId FROM BillingSchedule WHERE NextBillingDate = TOMORROW AND CancellationDate = null');
+                return Database.getQueryLocator('SELECT Id, NextBillingDate, ReferenceEntityId FROM BillingSchedule WHERE NextBillingDate = TOMORROW AND CancellationDate = null WITH SECURITY_ENFORCED');
             } catch (Exception ex) {
                 logger.error(ex);
                 return null;

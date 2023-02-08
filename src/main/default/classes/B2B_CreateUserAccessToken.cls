@@ -10,7 +10,7 @@
  * 
  /* Raja Patnaik  05-18-2021 */
 
- public without sharing class B2B_CreateUserAccessToken {
+public with sharing class B2B_CreateUserAccessToken {
 
     
     @AuraEnabled

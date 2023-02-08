@@ -8,7 +8,7 @@
  * Ver   Date         Author        Modification
  * 1.0   05-20-2022   Prabhat Kumar  Initial Version
 **/
-global without sharing class B2B_HomeFeaturedProduct {
+global with sharing class B2B_HomeFeaturedProduct {
 
   private static final DCM_Logger logger = DCM_Logger.getInstance(B2B_SetupConstants.FEATURE_PRODUCTS);
 
@@ -42,6 +42,7 @@ global without sharing class B2B_HomeFeaturedProduct {
           )
         FROM Product2
         WHERE IsActive = TRUE AND Is_Featured_Product__c = TRUE
+        WITH SECURITY_ENFORCED
         ORDER BY StockKeepingUnit
       ];
 
@@ -82,6 +83,7 @@ global without sharing class B2B_HomeFeaturedProduct {
       SELECT id, UnitPrice
       FROM PricebookEntry
       WHERE Product2Id = :productId
+      WITH SECURITY_ENFORCED
       LIMIT 1
     ];
     } catch(Exception e) {

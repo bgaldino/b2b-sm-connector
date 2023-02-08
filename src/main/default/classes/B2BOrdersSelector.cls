@@ -3,7 +3,7 @@
  * @last modified on  : 03-02-2022
  * @last modified by  : Abhishek Walia
 **/
-public without sharing class B2BOrdersSelector {
+public with sharing class B2BOrdersSelector {
 
     public static final String OBJECT_API_NAME = 'Order';
     public static final String FILTER_STATUS = 'Order In Progress';
@@ -30,7 +30,7 @@ public without sharing class B2BOrdersSelector {
                 'OwnerId, Owner.FirstName, Owner.LastName,Owner.Email',
                 '(SELECT Id,CurrencyIsoCode,PriceBookEntryId',
                   'Product2Id, Product2.Name,Product2.ProductCode,Product2.StockKeepingUnit ,Product2.DisplayUrl,Product2.isActive',
-                 'Quantity,UnitPrice ,TotalPrice , Description FROM orderItems)'
+                 'Quantity,UnitPrice ,TotalPrice , Description FROM orderItems WITH SECURITY_ENFORCED)'
         };
     }
     
@@ -105,7 +105,7 @@ public without sharing class B2BOrdersSelector {
         if(String.isBlank(accId)){
             statusList = new List<String>();
         }
-        return Database.countQuery ( 'SELECT count() FROM '+ OBJECT_API_NAME + ' '+ getQueryWhere(mapParam) );
+        return Database.countQuery ( 'SELECT count() FROM '+ OBJECT_API_NAME + ' '+ getQueryWhere(mapParam) + ' WITH SECURITY_ENFORCED' );
     }
 
     public static String getAccountId(String userId){

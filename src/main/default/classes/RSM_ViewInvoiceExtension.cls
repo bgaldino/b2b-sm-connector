@@ -5,7 +5,7 @@ public with sharing class RSM_ViewInvoiceExtension {
     private static final String MODULE_NAME = 'MyInvoices Module';
     private static final DCM_Logger logger = DCM_Logger.getInstance(MODULE_NAME);
     
-    public without sharing class RSM_MyInvoiceLineWrapper {
+    public with sharing class RSM_MyInvoiceLineWrapper {
         @AuraEnabled 
         public Id lineId { get; set; }
         @AuraEnabled 
@@ -82,21 +82,30 @@ public with sharing class RSM_ViewInvoiceExtension {
         return null;
     }
 
-    private void getCompanyInfoMetadata(String companyName){
-        RSM_ConnectorConfigrationSelector configSelector = new RSM_ConnectorConfigrationSelector();
-        Map<String,String> invoiceConfig= configSelector.getAllConfigByType('Invoicing');
-        this.companyInfo.state = invoiceConfig.get('State');
-        this.companyInfo.companyName = invoiceConfig.get('Company_Name');
+    /*private*/ public void getCompanyInfoMetadata(String companyName){
+        //RSM_ConnectorConfigrationSelector configSelector = new RSM_ConnectorConfigrationSelector();
+        //Map<String,String> invoiceConfig= configSelector.getAllConfigByType('Invoicing');
+        //this.companyInfo.state = invoiceConfig.get('State'); //RSM_Connector_Configuration__mdt.getInstance('OrgDomainUrl');
+        companyInfo cmp = new companyInfo();
+        cmp.state = String.valueOf(RSM_Connector_Configuration__mdt.getInstance('State').key__c);
+        /*this.companyInfo.companyName = invoiceConfig.get('Company_Name');
         this.companyInfo.city = invoiceConfig.get('City');
         this.companyInfo.street = invoiceConfig.get('Street');
         this.companyInfo.country = invoiceConfig.get('Country');
-        this.companyInfo.postalCode = invoiceConfig.get('Postal_Code');
+        this.companyInfo.postalCode = invoiceConfig.get('Postal_Code');*/
+        cmp.companyName = String.valueOf(RSM_Connector_Configuration__mdt.getInstance('Company_Name').key__c);
+        cmp.city = String.valueOf(RSM_Connector_Configuration__mdt.getInstance('City').key__c);
+        cmp.street = String.valueOf(RSM_Connector_Configuration__mdt.getInstance('Street').key__c);
+        cmp.country = String.valueOf(RSM_Connector_Configuration__mdt.getInstance('Country').key__c);
+        cmp.postalCode = String.valueOf(RSM_Connector_Configuration__mdt.getInstance('Postal_Code').key__c);
+        cmp.phone = String.valueOf(RSM_Connector_Configuration__mdt.getInstance('Phone').key__c);
+        this.companyInfo = cmp;
     }
 
     public void queryInvoiceLineDetails(Id invoiceId){
         
         try{
-            list<Invoice> invoiceRecList = [Select id, DocumentNumber, TotalTaxAmount, TotalAmountWithTax, InvoiceDate, DueDate, Status, ReferenceEntityId from Invoice where Id =: invoiceId limit 1];
+            list<Invoice> invoiceRecList = [Select id, DocumentNumber, TotalTaxAmount, TotalAmountWithTax, InvoiceDate, DueDate, Status, ReferenceEntityId from Invoice where Id =: invoiceId WITH SECURITY_ENFORCED limit 1];
             logger.debug(JSON.serialize(invoiceRecList));
             this.invoiceRec = invoiceRecList[0];
             this.invDocNum = invoiceRecList[0].DocumentNumber;
@@ -105,12 +114,12 @@ public with sharing class RSM_ViewInvoiceExtension {
             this.invDueDate = invoiceRecList[0].DueDate;
             this.invStatus = invoiceRecList[0].Status;
             this.invTotal = invoiceRecList[0].TotalAmountWithTax;
-            list<InvoiceLine> invLineItem = [select id, type, InvoiceId  from InvoiceLine where InvoiceId =:invoiceRecList[0].Id AND type = 'Charge' Limit 1];
-            list<BillingPeriodItem> invBPI = [select id, BillingScheduleId  from BillingPeriodItem where InvoiceLineId =: invLineItem[0].Id Limit 1];
-            list<BillingSchedule> blngSchedule = [select id, ReferenceEntityId from BillingSchedule where id =: invBPI[0].BillingScheduleId limit 1];
+            list<InvoiceLine> invLineItem = [select id, type, InvoiceId  from InvoiceLine where InvoiceId =:invoiceRecList[0].Id AND type = 'Charge' WITH SECURITY_ENFORCED Limit 1];
+            list<BillingPeriodItem> invBPI = [select id, BillingScheduleId  from BillingPeriodItem where InvoiceLineId =: invLineItem[0].Id WITH SECURITY_ENFORCED Limit 1];
+            list<BillingSchedule> blngSchedule = [select id, ReferenceEntityId from BillingSchedule where id =: invBPI[0].BillingScheduleId WITH SECURITY_ENFORCED limit 1];
             string ordId = blngSchedule[0].ReferenceEntityId;
             List<Order> ordList = [SELECT id, OrderNumber, Status, ActivatedDate, AccountId, Account.Name, BillingStreet, BillingCity, 
-                                   BillingState, BillingPostalCode, BillingCountry from Order where id =:ordId LIMIT 1];
+                                   BillingState, BillingPostalCode, BillingCountry from Order where id =:ordId WITH SECURITY_ENFORCED LIMIT 1];
             this.orderNumber = ordList[0].OrderNumber;
             this.activatedDate = ordList[0].ActivatedDate;
             this.billingAddress = generateBillingAccount(
@@ -132,7 +141,7 @@ public with sharing class RSM_ViewInvoiceExtension {
             list<InvoiceLine> invLineList = [Select id, Quantity, Product2.Name, Product2.Description, UnitPrice, Type, LineAmount, InvoiceLineStartDate, InvoiceLineEndDate,
                                              BillingSchedule.BillingScheduleGroup.ProductName, BillingSchedule.BillingScheduleGroup.BillingTermUnit, 
                                              BillingSchedule.BillingScheduleGroup.EndDate, BillingSchedule.BillingScheduleGroup.StartDate
-                                             from InvoiceLine where InvoiceId =: invoiceId AND Type = 'Charge'];
+                                             from InvoiceLine where InvoiceId =: invoiceId AND Type = 'Charge' WITH SECURITY_ENFORCED];
             voiceLines = new List<RSM_MyInvoiceLineWrapper>();
             logger.debug(JSON.serialize(invLineList));
             if(!invLineList.isEmpty()){
@@ -199,7 +208,7 @@ public with sharing class RSM_ViewInvoiceExtension {
         {
                
             List<WebCart> lstCarts = [SELECT OwnerId, Id, Name, Type,CurrencyIsoCode, Status, (SELECT ID FROM Quotes__r) FROM WebCart 
-                                      WHERE Id=:cartId ORDER BY CREATEDDATE DESC LIMIT 20];
+                                      WHERE Id=:cartId WITH SECURITY_ENFORCED ORDER BY CREATEDDATE DESC LIMIT 20];
             
             
             WebCart cartObj = lstCarts[0];
@@ -242,19 +251,19 @@ public with sharing class RSM_ViewInvoiceExtension {
                 WebStore wstore = [SELECT Id FROM WebStore WHERE Name ='Sflabs' LIMIT 1];
                 webstoreId = wstore.Id;
             }else{
-                webstoreId = [SELECT WebStoreId FROM WebStoreNetwork WHERE NetworkId = :communityId LIMIT 1].WebStoreId;
+                webstoreId = [SELECT WebStoreId FROM WebStoreNetwork WHERE NetworkId = :communityId WITH SECURITY_ENFORCED LIMIT 1].WebStoreId;
             }
            
             
             //get pricebook id
-            string pricebook_id = [select id, Pricebook2Id,WebStoreId from WebStorePricebook where WebStoreId =: webstoreId].Pricebook2Id;
+            string pricebook_id = [select id, Pricebook2Id,WebStoreId from WebStorePricebook where WebStoreId =: webstoreId WITH SECURITY_ENFORCED].Pricebook2Id;
             
-            Pricebook2 acmePriceBook = [Select Id,Name,IsActive,Description,IsStandard from PriceBook2 WHERE id =: pricebook_id];
+            Pricebook2 acmePriceBook = [Select Id,Name,IsActive,Description,IsStandard from PriceBook2 WHERE id =: pricebook_id WITH SECURITY_ENFORCED];
             
             
-            User u = [select id,ContactId from User where id=:webCartObj.OwnerId LIMIT 1];
+            User u = [select id,ContactId from User where id=:webCartObj.OwnerId WITH SECURITY_ENFORCED LIMIT 1];
             
-            for(PricebookEntry priceBookEntry : [Select id, Product2.Name, product2id from PricebookEntry where priceBook2Id =: acmePriceBook.id AND product2id IN: prodId]){
+            for(PricebookEntry priceBookEntry : [Select id, Product2.Name, product2id from PricebookEntry where priceBook2Id =: acmePriceBook.id AND product2id IN: prodId WITH SECURITY_ENFORCED]){
                 
                 prodCartItemMap.put(priceBookEntry.product2id, priceBookEntry);
                 
@@ -268,7 +277,8 @@ public with sharing class RSM_ViewInvoiceExtension {
             opp.StageName = 'Prospecting';
             
             opp.CurrencyIsoCode = webCartObj.CurrencyIsoCode;
-            Insert opp;
+            //Insert opp;
+            DMLManager.insertAsSystem(opp);
             
             String reqDataItems = '';
             Integer n = 1;
@@ -328,7 +338,7 @@ public with sharing class RSM_ViewInvoiceExtension {
         }   
         
         catch (Exception ex) {
-            
+            logger.error(ex);
         }
         
         return jobID;
@@ -374,7 +384,7 @@ public with sharing class RSM_ViewInvoiceExtension {
         String webstoreId ;
         if(!Test.isRunningTest()){
             webStoreId = [SELECT WebStoreId FROM WebStoreNetwork 
-                          WHERE NetworkId = :communityId
+                          WHERE NetworkId = :communityId WITH SECURITY_ENFORCED
                           LIMIT 1].WebStoreId;
         }else{
             webStoreId = [Select id from webStore where Name = 'Sflabs' limit 1].Id;
@@ -424,7 +434,7 @@ public with sharing class RSM_ViewInvoiceExtension {
         catch(Exception ex){
             System.debug('ex ' +ex);
             MessageLog__c log1 = new MessageLog__c(Message__c = 'B2BBuyNowFlow ERR', MessageLong__c = ex.getMessage() + ' || ' + ex.getStackTraceString());
-            insert log1;
+            //insert log1;  //removed due to sec review //not required
         } 
         
     }
@@ -469,7 +479,7 @@ public with sharing class RSM_ViewInvoiceExtension {
             Map<String,object> resultData = new Map<String,object>();
             
             string cancelDate = '';
-            List<BillingScheduleGroup> billingSechd =  [select id, EffectiveNextBillingDate, EndDate from BillingScheduleGroup where ReferenceEntityId =: assetId];
+            List<BillingScheduleGroup> billingSechd =  [select id, EffectiveNextBillingDate, EndDate from BillingScheduleGroup where ReferenceEntityId =: assetId WITH SECURITY_ENFORCED];
             if(billingSechd.size() > 0){
                 
                 cancelDate = string.valueof(billingSechd[0].EffectiveNextBillingDate)+'T00:00:00-00:00';

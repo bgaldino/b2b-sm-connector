@@ -70,11 +70,13 @@ export default class ProductDetailsDisplay extends NavigationMixin(LightningElem
 
         let pricingModels = [];
         let models   = JSON.parse(JSON.stringify(this._pricingModel));
-       // console.log('setSellingModels models===== '+JSON.stringify(models));
-        if(models !=undefined && models.product && models.product.PricebookEntries){
-            
+        // console.log('setSellingModels models===== '+JSON.stringify(models));
+        //if(models !=undefined && models.product && models.product.PricebookEntries){ //made by surya
+            if(models !=undefined && models.product && models.PricebookEntries){
+
             //if(models.product.PricebookEntries !=undefined){
-                let pricebookEntries  = models.product.PricebookEntries;
+                //let pricebookEntries  = models.product.PricebookEntries;        //made by surya
+                let pricebookEntries  = models.PricebookEntries;
                 //this.currentPriceBookEntryId = models.product.PricebookEntries[0].Id;
                 //console.log('setSellingModels pricebookEntries===== '+JSON.stringify(pricebookEntries));
                 /*filter out the pricebookEntries with ProductSellingMedelId*/

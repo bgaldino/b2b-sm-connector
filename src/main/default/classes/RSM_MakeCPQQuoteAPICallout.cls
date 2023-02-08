@@ -4,7 +4,7 @@
 **/
 
 @RestResource(urlMapping='/B2BCartToQuoteRestService/')
-global without sharing class  RSM_MakeCPQQuoteAPICallout {
+global with sharing class  RSM_MakeCPQQuoteAPICallout {
 
     private static final DCM_Logger logger = DCM_Logger.getInstance(B2B_SetupConstants.REQUEST_DISCOUNT);
 
@@ -22,7 +22,7 @@ global without sharing class  RSM_MakeCPQQuoteAPICallout {
 
        
         List<WebCart> lstCarts = [SELECT OwnerId, Id, Name, Type,CurrencyIsoCode, Status, (SELECT ID FROM Quotes__r) FROM WebCart 
-        WHERE Id=:cartId ORDER BY CREATEDDATE DESC LIMIT 20];
+        WHERE Id=:cartId WITH SECURITY_ENFORCED ORDER BY CREATEDDATE DESC LIMIT 20];
         
        
         WebCart cartObj = lstCarts[0];
@@ -101,17 +101,17 @@ global without sharing class  RSM_MakeCPQQuoteAPICallout {
             }
          }
 
-         String webstoreId = [SELECT WebStoreId FROM WebStoreNetwork WHERE NetworkId = :communityId LIMIT 1].WebStoreId;
+         String webstoreId = [SELECT WebStoreId FROM WebStoreNetwork WHERE NetworkId = :communityId WITH SECURITY_ENFORCED LIMIT 1].WebStoreId;
 
          //get pricebook id
-         string pricebook_id = [select id, Pricebook2Id,WebStoreId from WebStorePricebook where WebStoreId =: webstoreId AND pricebook2.isActive=true].Pricebook2Id;
+         string pricebook_id = [select id, Pricebook2Id,WebStoreId from WebStorePricebook where WebStoreId =: webstoreId AND pricebook2.isActive=true WITH SECURITY_ENFORCED].Pricebook2Id;
 
-         Pricebook2 acmePriceBook = [Select Id,Name,IsActive,Description,IsStandard from PriceBook2 WHERE id =: pricebook_id];
+         Pricebook2 acmePriceBook = [Select Id,Name,IsActive,Description,IsStandard from PriceBook2 WHERE id =: pricebook_id WITH SECURITY_ENFORCED];
 
 
-         User u = [select id,ContactId from User where id=:webCartObj.OwnerId LIMIT 1];
+         User u = [select id,ContactId from User where id=:webCartObj.OwnerId WITH SECURITY_ENFORCED LIMIT 1];
 
-        List<PricebookEntry> prices = [SELECT id, UnitPrice, ProductSellingModelId, ProductSellingModel.SellingModelType, ProductSellingModel.PricingTerm, ProductSellingModel.PricingTermUnit, Product2Id FROM PricebookEntry WHERE Pricebook2Id =: acmePriceBook.Id AND ProductSellingModelId != null AND Id IN: price_bookenryId];
+        List<PricebookEntry> prices = [SELECT id, UnitPrice, ProductSellingModelId, ProductSellingModel.SellingModelType, ProductSellingModel.PricingTerm, ProductSellingModel.PricingTermUnit, Product2Id FROM PricebookEntry WHERE Pricebook2Id =: acmePriceBook.Id AND ProductSellingModelId != null AND Id IN: price_bookenryId WITH SECURITY_ENFORCED];
 
         for(PricebookEntry priceentry : prices){
 
@@ -128,7 +128,8 @@ global without sharing class  RSM_MakeCPQQuoteAPICallout {
          opp.StageName = 'Prospecting';
          
          opp.CurrencyIsoCode = webCartObj.CurrencyIsoCode;
-         Insert opp;
+         //Insert opp; //update due to securit review.
+         DMLManager.insertAsUser(opp);
 
          String reqDataItems = '';
          Integer n = 1;

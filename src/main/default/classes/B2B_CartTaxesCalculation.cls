@@ -1,4 +1,4 @@
-global without sharing class B2B_CartTaxesCalculation {
+global with sharing class B2B_CartTaxesCalculation {
 
     private static final DCM_Logger logger = DCM_Logger.getInstance(B2B_SetupConstants.TAXES_CALCULATION);
 
@@ -23,6 +23,7 @@ global without sharing class B2B_CartTaxesCalculation {
             FROM CartItem 
             WHERE cartId = :cartId
             AND Type != 'Charge'
+            WITH SECURITY_ENFORCED
         ];
 
         if(!cartItems.isEmpty()) {
@@ -110,7 +111,7 @@ global without sharing class B2B_CartTaxesCalculation {
                 cartTaxListToCreate.add(tax);
             }
 
-            insert cartTaxListToCreate;
+            DMLManager.insertAsUser(cartTaxListToCreate);
         } catch (Exception ex) {
             logger.error(ex);
         } finally {

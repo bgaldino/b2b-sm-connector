@@ -156,7 +156,7 @@ export default class B2b_cartTotals extends NavigationMixin(LightningElement) {
                   this.subTotalCost = 0.0;
                   this.cartItems.forEach(item => {
                     productWithPricingModel( {
-                          pricebookEntryId: item.priceBookEntryId
+                          productSellingModelName: item.productSellingModel
                       })
                       .then((res) => {
                         if(res.Name == 'Term Monthly'){

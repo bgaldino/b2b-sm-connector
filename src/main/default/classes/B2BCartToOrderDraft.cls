@@ -6,7 +6,7 @@
  * Multi-currency has not been tested, though you'll see a couple uses of currency codes (CurrencyIsoCode) commented out in this class.
  * If you are using multi-currency in your org, I would uncomment those lines out.
  */
-global without sharing class B2BCartToOrderDraft {
+global with sharing class B2BCartToOrderDraft {
 
     private static final DCM_Logger logger = DCM_Logger.getInstance(B2B_SetupConstants.ORDER_CREATION);
 
@@ -37,6 +37,9 @@ global without sharing class B2BCartToOrderDraft {
             Id cartDeliveryGroupId = [SELECT Id FROM CartDeliveryGroup WHERE DeliveryMethodId != null AND CartId = :cartId WITH SECURITY_ENFORCED][0].Id;
      
             Id orderId = mapAndInsertCartToOrder(cartId);
+            
+            createSMAppUssage(orderId);
+            
             updateCheckoutSession(checkoutSessionId, orderId);
         
         
@@ -44,7 +47,7 @@ global without sharing class B2BCartToOrderDraft {
             Id orderActionId = mapAndInsertOrderAction(orderId);
             mapAndInsertCartItems(cartId, orderId, orderActionId, orderDeliveryGroupId);
 
-            Id orderCloneCopy = createSubscriptionManagementOrder(orderId);     
+            //Id orderCloneCopy = createSubscriptionManagementOrder(orderId);     
 
             if(orderIds.size() == 0){
                 orderIds.add(orderId); 
@@ -107,7 +110,7 @@ global without sharing class B2BCartToOrderDraft {
             if(Test.isRunningTest()) {
                 webstorePricebooks = [SELECT Id, Name, WebStoreId, Pricebook2Id, IsActive FROM WebStorePricebook  WHERE WebStore.Name ='Sflabs' LIMIT 1];
             } else {
-                webstorePricebooks = [SELECT Id, Name, WebStoreId, Pricebook2Id, IsActive FROM WebStorePricebook WHERE WebStoreId = :storeId LIMIT 1];
+                webstorePricebooks = [SELECT Id, Name, WebStoreId, Pricebook2Id, IsActive FROM WebStorePricebook WHERE WebStoreId = :storeId WITH SECURITY_ENFORCED LIMIT 1];
             }
             // Create the order
             Date now = Date.today();    
@@ -137,7 +140,7 @@ global without sharing class B2BCartToOrderDraft {
                 EffectiveDate = now,
                 OrderedDate = now,
                 Status = 'Draft',
-                Order_Type__c = 'B2B Order'
+                Order_Type__c = 'SM Order' //'B2B Order'
             );
             for(B2B_Shipping_Address__c address : cart.B2B_Shipping_Addresses__r){
                 order.ShippingStreet = address.Street__c;
@@ -170,7 +173,7 @@ global without sharing class B2BCartToOrderDraft {
                                BillingState, BillingPostalCode,BillingCountry,BillingLatitude, BillingLongitude,  ShippingStreet, ShippingCity,
                                ShippingState, ShippingPostalCode,ShippingCountry,ShippingLatitude, ShippingLongitude, EffectiveDate,OrderedDate, Status,
                                (SELECT id, Type, TypeCode, Quantity, ListPrice, UnitPrice, NetUnitPrice, OrderId,ProductSellingModelId, OrderActionId, TaxTreatmentId, PricebookEntryId,EndDate, StartingPriceTotal, StartingUnitPriceSource, ServiceDate, PeriodBoundary, BillingFrequency2, PricingTermCount, ProductSellingModel.SellingModelType FROM OrderItems) 
-                               FROM Order WHERE id =: orderId LIMIT 1];
+                               FROM Order WHERE id =: orderId WITH SECURITY_ENFORCED LIMIT 1];
             List<OrderItem> orderItemsWithOrderTaxItems = [SELECT Id, (SELECT Id, Name, Type, Amount, TaxEffectiveDate, OrderItemId FROM OrderItemTaxLineItems) FROM OrderItem WHERE OrderId = :orderId WITH SECURITY_ENFORCED];
             orderCloneCopy = checkoutOrder.clone(false,true);
         
@@ -387,13 +390,13 @@ global without sharing class B2BCartToOrderDraft {
                     
                     system.debug('pricess---->' + prices);
                 } else {
-                    prices = [SELECT id, UnitPrice, ProductSellingModelId, ProductSellingModel.SellingModelType, ProductSellingModel.PricingTerm, ProductSellingModel.PricingTermUnit, Product2Id FROM PricebookEntry WHERE Pricebook2Id =: order.Pricebook2Id AND ProductSellingModelId != null AND Id =: cartItem.B2B_PriceBookEntry_Id__c LIMIT 1];
+                    prices = [SELECT id, UnitPrice, ProductSellingModelId, ProductSellingModel.SellingModelType, ProductSellingModel.PricingTerm, ProductSellingModel.PricingTermUnit, Product2Id FROM PricebookEntry WHERE Pricebook2Id =: order.Pricebook2Id AND ProductSellingModelId != null AND Id =: cartItem.B2B_PriceBookEntry_Id__c WITH SECURITY_ENFORCED LIMIT 1];
                 }
 
-                List<TaxTreatment> taxTreatmentList = [SELECT Id FROM TaxTreatment WHERE TaxPolicyId = :cartItem.Product2.TaxPolicyId LIMIT 1];
+                List<TaxTreatment> taxTreatmentList = [SELECT Id FROM TaxTreatment WHERE TaxPolicyId = :cartItem.Product2.TaxPolicyId WITH SECURITY_ENFORCED LIMIT 1];
                 TaxTreatment taxTreatment;
                 if(taxTreatmentList.isEmpty()) {
-                    taxTreatment = [SELECT Id FROM TaxTreatment WHERE TaxPolicyId != null AND Status = 'Active' LIMIT 1];
+                    taxTreatment = [SELECT Id FROM TaxTreatment WHERE TaxPolicyId != null AND Status = 'Active' WITH SECURITY_ENFORCED LIMIT 1];
                 } else {
                     taxTreatment = taxTreatmentList[0];
                 }
@@ -563,4 +566,11 @@ global without sharing class B2BCartToOrderDraft {
 
         return null;
     }
+    
+    private static void createSMAppUssage(Id ordId){
+        AppUsageAssignment appUsage = new AppUsageAssignment(RecordId = ordId, 
+        AppUsageType = 'SubscriptionManagement');
+        DMLManager.insertAsSystem(appUsage);
+    }
+    
 }

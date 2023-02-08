@@ -1,4 +1,4 @@
-public without sharing class RSM_Utils {
+public with sharing class RSM_Utils {
   private static final DCM_Logger logger = DCM_Logger.getImmediateInstance('Utility');
   private static Map<String,SObjectType> globalDescribe = Schema.getGlobalDescribe();
   
@@ -38,7 +38,7 @@ public without sharing class RSM_Utils {
 
       String soql = 'SELECT ' + RSM_Utils.getAllObjectFields(String.valueOf(WebCart.getSObjectType())) +
       ' FROM ' + String.valueOf(WebCart.getSObjectType()) +
-      ' WHERE Id IN :setCartId';
+      ' WHERE Id IN :setCartId WITH SECURITY_ENFORCED';
       cartDetailsLst = Database.query(soql);
       System.debug('cartDetailsLst-----'+cartDetailsLst);
       System.debug('setCartId-----'+setCartId);
@@ -60,7 +60,7 @@ public without sharing class RSM_Utils {
 
       String soql = 'SELECT ' + RSM_Utils.getAllObjectFields(String.valueOf(cartItem.getSObjectType())) +
       ' FROM ' + String.valueOf(cartItem.getSObjectType()) +
-      ' WHERE CartId IN :setCartId';
+      ' WHERE CartId IN :setCartId WITH SECURITY_ENFORCED';
       lstCartItems = Database.query(soql);
 
       return lstCartItems;
