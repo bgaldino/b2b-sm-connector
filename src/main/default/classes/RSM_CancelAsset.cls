@@ -21,7 +21,13 @@ global with sharing class RSM_CancelAsset {
     Map<String,object> resultData = new Map<String,object>();
     try {
 
-      List<BillingScheduleGroup> billingSechd =  [select id, StartDate, ReferenceEntity.Name, EffectiveNextBillingDate, EndDate from BillingScheduleGroup where ReferenceEntityId =: assetId WITH SECURITY_ENFORCED LIMIT 1];
+      List<BillingScheduleGroup> billingSechd = new List<BillingScheduleGroup>();
+      if(Test.isRunningTest()) {
+        billingSechd = [select id, StartDate, ReferenceEntity.Name, EffectiveNextBillingDate, EndDate from BillingScheduleGroup where ReferenceEntityId =: assetId LIMIT 1];
+      } else {
+      //removing WITH SECURITY_ENFORCED  because community user cant query on this object
+        billingSechd = [select id, StartDate, ReferenceEntity.Name, EffectiveNextBillingDate, EndDate from BillingScheduleGroup where ReferenceEntityId =: assetId LIMIT 1];
+      }
 
       if(billingSechd.size() > 0){
 
@@ -62,7 +68,14 @@ global with sharing class RSM_CancelAsset {
       
 
       string cancelDate = '';
-     List<BillingScheduleGroup> billingSechd =  [select id, EffectiveNextBillingDate, EndDate from BillingScheduleGroup where ReferenceEntityId =: assetId WITH SECURITY_ENFORCED];
+      
+      List<BillingScheduleGroup> billingSechd = new List<BillingScheduleGroup>();
+      if(Test.isRunningTest()) {
+        billingSechd = [select id, EffectiveNextBillingDate, EndDate from BillingScheduleGroup where ReferenceEntityId =: assetId];
+      } else {
+      //removed WITH SECURITY_ENFORCED from soql
+        billingSechd = [select id, EffectiveNextBillingDate, EndDate from BillingScheduleGroup where ReferenceEntityId =: assetId ];
+      }
       if(billingSechd.size() > 0){
 
         cancelDate = string.valueof(billingSechd[0].EffectiveNextBillingDate)+'T00:00:00-00:00';

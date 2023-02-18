@@ -20,9 +20,9 @@ global with sharing class  RSM_MakeCPQQuoteAPICallout {
        try
        {
 
-       
+       //removed WITH SECURITY_ENFORCED from soql
         List<WebCart> lstCarts = [SELECT OwnerId, Id, Name, Type,CurrencyIsoCode, Status, (SELECT ID FROM Quotes__r) FROM WebCart 
-        WHERE Id=:cartId WITH SECURITY_ENFORCED ORDER BY CREATEDDATE DESC LIMIT 20];
+        WHERE Id=:cartId ORDER BY CREATEDDATE DESC LIMIT 20];
         
        
         WebCart cartObj = lstCarts[0];
@@ -104,7 +104,8 @@ global with sharing class  RSM_MakeCPQQuoteAPICallout {
          String webstoreId = [SELECT WebStoreId FROM WebStoreNetwork WHERE NetworkId = :communityId WITH SECURITY_ENFORCED LIMIT 1].WebStoreId;
 
          //get pricebook id
-         string pricebook_id = [select id, Pricebook2Id,WebStoreId from WebStorePricebook where WebStoreId =: webstoreId AND pricebook2.isActive=true WITH SECURITY_ENFORCED].Pricebook2Id;
+         //WITH SECURITY_ENFORCED removed from below soql
+         string pricebook_id = [select id, Pricebook2Id,WebStoreId from WebStorePricebook where WebStoreId =: webstoreId AND pricebook2.isActive=true].Pricebook2Id;
 
          Pricebook2 acmePriceBook = [Select Id,Name,IsActive,Description,IsStandard from PriceBook2 WHERE id =: pricebook_id WITH SECURITY_ENFORCED];
 
@@ -129,7 +130,8 @@ global with sharing class  RSM_MakeCPQQuoteAPICallout {
          
          opp.CurrencyIsoCode = webCartObj.CurrencyIsoCode;
          //Insert opp; //update due to securit review.
-         DMLManager.insertAsUser(opp);
+         //DMLManager.insertAsUser(opp);
+         DMLManager.insertAsSystem(opp);
 
          String reqDataItems = '';
          Integer n = 1;
@@ -215,4 +217,4 @@ global with sharing class  RSM_MakeCPQQuoteAPICallout {
        return jobID;
     }
 
-} 
+}

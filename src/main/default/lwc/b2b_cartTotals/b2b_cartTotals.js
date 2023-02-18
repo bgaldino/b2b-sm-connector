@@ -95,7 +95,7 @@ export default class B2b_cartTotals extends NavigationMixin(LightningElement) {
             finalPrice: this.cartSummary && this.subTotalCost,
             firstBill: this.cartSummary && this.firstCost,
             monthlyBill: this.cartSummary && this.monthlyCost,
-            dueToday: this.cartSummary && (parseInt(this.cartSummary.totalProductAmount) + this.orderTaxAmount)
+            dueToday: this.cartSummary && (parseInt(this.cartSummary.totalProductAmount) + this.orderTaxAmount + parseFloat(this.cartSummary.totalChargeAmount))
         };
     }
 

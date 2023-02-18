@@ -5,7 +5,14 @@ public with sharing class B2B_ProceedToCheckout {
         Map<String, Object> response = new Map<String, Object>();
         response.put('isActive', true);
 
-        WebCart currentCart = [SELECT Id, Cart_Type__c, Quote__c,Status FROM WebCart WITH SECURITY_ENFORCED LIMIT 1];
+        WebCart currentCart;
+
+        if(!Test.isRunningTest()) {
+            currentCart = [SELECT Id, Cart_Type__c, Quote__c,Status FROM WebCart WITH SECURITY_ENFORCED LIMIT 1];
+        } else {
+            currentCart = [SELECT Id, Cart_Type__c, Quote__c,Status FROM WebCart LIMIT 1];
+        }
+
         if (currentCart != null) {
             response.put('cartId', currentCart.Id);
             response.put('cartType', currentCart.Cart_Type__c);

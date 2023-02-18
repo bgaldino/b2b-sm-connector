@@ -30,7 +30,7 @@ public with sharing class B2BOrdersSelector {
                 'OwnerId, Owner.FirstName, Owner.LastName,Owner.Email',
                 '(SELECT Id,CurrencyIsoCode,PriceBookEntryId',
                   'Product2Id, Product2.Name,Product2.ProductCode,Product2.StockKeepingUnit ,Product2.DisplayUrl,Product2.isActive',
-                 'Quantity,UnitPrice ,TotalPrice , Description FROM orderItems WITH SECURITY_ENFORCED)'
+                 'Quantity,UnitPrice ,TotalPrice , Description FROM orderItems)'
         };
     }
     

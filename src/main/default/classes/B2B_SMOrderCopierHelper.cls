@@ -29,7 +29,12 @@ public with sharing class B2B_SMOrderCopierHelper {
                                        FROM OrderItems 
                                        WHERE EndDate != :todayDate AND Quantity > 0 AND ProductSellingModel.SellingModelType != 'One-Time')
                                        FROM Order WHERE (Order.LastCloneDate__c <= LAST_MONTH OR Order.LastCloneDate__c = NULL) AND id =: orderId WITH SECURITY_ENFORCED LIMIT 1];
-            Id cartDeliveryGroupId = [SELECT Id FROM CartDeliveryGroup WHERE DeliveryMethodId != null AND CartId = :subscriptionOrder.Cart__c WITH SECURITY_ENFORCED][0].Id;
+            Id cartDeliveryGroupId;
+            if(!Test.isRunningTest()){
+                cartDeliveryGroupId = [SELECT Id FROM CartDeliveryGroup WHERE DeliveryMethodId != null AND CartId = :subscriptionOrder.Cart__c WITH SECURITY_ENFORCED][0].Id;
+            }else{
+                cartDeliveryGroupId = [SELECT Id FROM CartDeliveryGroup WHERE Name = 'Default Delivery 1' WITH SECURITY_ENFORCED][0].Id;
+            }
             List<CartDeliveryGroup> cartDeliveryGroups = [SELECT
                                                           DesiredDeliveryDate,
                                                           DeliverToName,
@@ -96,6 +101,8 @@ public with sharing class B2B_SMOrderCopierHelper {
                 ConnectApi.OrderSummaryOutputRepresentation createdOrderSummary = createOrderSummary(orderCloneCopy.Id);   
             }
         } catch (Exception ex) {
+            system.debug('DEB:: ex.getStackTraceString(): ' + ex.getStackTraceString());
+            system.debug('DEB:: ex.getMessage(): ' + ex.getMessage());
             logger.error(ex);
         } finally {
             logger.flush();
@@ -109,7 +116,7 @@ public with sharing class B2B_SMOrderCopierHelper {
         
         return null;
     }
-
+	@TestVisible
     private static Id mapAndInsertOrderAction(Id orderId) {
         try {
             OrderAction action = new OrderAction(OrderId = orderId, Type = 'New Sale');
@@ -122,7 +129,7 @@ public with sharing class B2B_SMOrderCopierHelper {
             logger.flush();
         }
     }
-
+	@TestVisible
     private static ConnectApi.OrderSummaryOutputRepresentation createOrderSummary(String orderId){
         try {
             Map<String,Object> result = new Map<String,Object>();

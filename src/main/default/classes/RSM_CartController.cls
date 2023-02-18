@@ -284,7 +284,8 @@ public with sharing class RSM_CartController {
           // TotalAmount,
           TotalAdjustedProductAmount, 
           TotalTaxAmount, 
-          GrandTotalAmount, 
+          GrandTotalAmount,
+          TotalAdjustedDeliveryAmount,
           // OrderProductLineCount, 
           CurrencyIsoCode
           // TotalAdjDistAmount 
@@ -300,6 +301,7 @@ public with sharing class RSM_CartController {
         result.TotalAdjustedProductAmount = orderSummary.TotalAdjustedProductAmount;
         result.GrandTotalAmount = orderSummary.GrandTotalAmount;
         result.CurrencyIsoCode = orderSummary.CurrencyIsoCode;
+        result.ShippingCost = orderSummary.TotalAdjustedDeliveryAmount;
         //result.OrderNumber = orderSummary.OriginalOrder.smOrder__r.OrderNumber;
         result.OrderNumber = orderSummary.OriginalOrder.OrderNumber;
         // return orderSummary;
@@ -457,6 +459,29 @@ public with sharing class RSM_CartController {
     }
   }
 
+  @AuraEnabled
+  public static void deleteOrderByCartId(String cartId){
+    try {
+      List<Order> orderList = [SELECT Id FROM Order WHERE Cart__c = :cartId WITH SECURITY_ENFORCED LIMIT 1];
+      if(!orderList.isEmpty()) {
+        List<OrderItem> orderItemList = [SELECT Id FROM OrderItem WHERE OrderId = :orderList[0].Id WITH SECURITY_ENFORCED];
+        List<Id> orderItemIdList = new List<Id>();
+        for(OrderItem orderItem : orderItemList) {
+          orderItemIdList.add(orderItem.Id);
+        }
+        List<OrderItemTaxLineItem> orderTaxList = [SELECT Id FROM OrderItemTaxLineItem WHERE OrderItemId IN :orderItemIdList WITH SECURITY_ENFORCED];
+        DMLManager.deleteAsUSer(orderTaxList);
+      }
+      //List<Order> orderList = [SELECT Id FROM Order WHERE Cart__c = :cartId WITH SECURITY_ENFORCED];
+      //DMLManager.deleteAsUSer(orderList);
+    } catch (Exception ex) {
+      logger.error(ex);
+      throw new AuraHandledException(ex.getStackTraceString());
+    } finally {
+      logger.flush();
+    }
+  }
+
   public class CartItemWrapper {
     @AuraEnabled
     public String id {get;set;}
@@ -501,6 +526,8 @@ public with sharing class RSM_CartController {
     public String Id {get;set;}
     @AuraEnabled
     public Decimal TotalTaxAmount {get;set;}
+    @AuraEnabled
+    public Decimal ShippingCost {get;set;}
     @AuraEnabled
     public Decimal TotalAdjustedProductAmount {get;set;}
     @AuraEnabled

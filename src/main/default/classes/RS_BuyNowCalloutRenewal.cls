@@ -114,7 +114,7 @@ global with sharing class RS_BuyNowCalloutRenewal {
      /*
      * this method is to increase the code coverage and call the test method
     */
-    public static void B2B_BuyNowCallouttestMethodRenewal(Id OrderId, Id pGId, Id pMId){
+    public static void B2B_BuyNowCallouttestMethodRenewal(Id OrderId, Id pMId){
         List<Id> returnList = new List<Id>();
         List<B2B_BuyNowCalloutRequest> bcrList = new List<B2B_BuyNowCalloutRequest>();
         B2B_BuyNowCalloutRequest bcr = new B2B_BuyNowCalloutRequest();

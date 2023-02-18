@@ -70,7 +70,7 @@ export default class B2b_orderConfirmationTotals extends NavigationMixin(Lightni
             firstBill: this.cartSummary && this.firstCost,
             monthlyBill: this.cartSummary && this.monthlyCost,
             //dueToday: this.cartSummary && (this.cartSummary.GrandTotalAmount + this.cartSummary.TotalTaxAmount)
-            dueToday: this.cartSummary && (this.cartSummary.GrandTotalAmount)
+            dueToday: this.cartSummary && (this.cartSummary.GrandTotalAmount + this.cartSummary.ShippingCost)
         };
     }
 

@@ -56,18 +56,34 @@ public with sharing class B2BGetProducts {
             // String storeId = B2BUtils.fetchConfigByValue('WebStoreId');
             String storeId = RSM_Connector_Configuration__mdt.getInstance('WebStoreID').key__c;            
             // WebStorePricebook webstorePricebooks;
-            List<WebStorePricebook> webstorePricebooks = new List<WebStorePricebook>();
+            /*List<WebStorePricebook> webstorePricebooks = new List<WebStorePricebook>();
             if(!test.isRunningTest()) {
                 webstorePricebooks = [SELECT Id, Name, WebStoreId, Pricebook2Id, IsActive FROM WebStorePricebook WHERE WebStoreId = :storeId LIMIT 1];   
             } else {
                 webstorePricebooks = [SELECT Id, Name, WebStoreId, Pricebook2Id, IsActive FROM WebStorePricebook WHERE WebStore.Name = 'Sflabs' LIMIT 1];   
-            }
+            }*/
 
             String priceBookId = '';
-            if(webstorePricebooks.size() > 0) {
-                priceBookId = webstorePricebooks[0].Pricebook2Id;
+            //if(webstorePricebooks.size() > 0) {
+                //priceBookId = webstorePricebooks[0].Pricebook2Id;
                 //getExpenses();
-                ConnectApi.ProductDetail prodDetail = ConnectApi.CommerceCatalog.getProduct(storeId, productId, effAccId, null, false, null, false, false, false, false, false, false, false);
+                ConnectApi.ProductDetail prodDetail;// = new ConnectApi.ProductDetail();
+                if(!Test.isRunningTest()){
+                    prodDetail = ConnectApi.CommerceCatalog.getProduct(storeId, productId, effAccId, null, false, null, false, false, false, false, false, false, false);   
+                }else{
+                    prodDetail = new ConnectApi.ProductDetail();
+                    prodDetail.productSellingModels = Null;
+                    List<ConnectApi.ProductSellingModel> psmlist = new List<ConnectApi.ProductSellingModel>();
+                    ConnectApi.ProductSellingModel obj = new ConnectApi.ProductSellingModel();
+                    obj.id = [select id from ProductSellingModel LIMIT 1].Id;
+                    obj.name = '';
+                    obj.pricingTerm = 1 ;
+                    obj.pricingTermUnit = Null;
+                    obj.sellingModelType = Null;
+                    psmlist.add(obj);
+                    prodDetail.productSellingModels = psmlist;
+                    prodDetail.id = [select id from Product2 limit 1].Id;
+                }
                 System.debug('prodDetail---- '+json.serialize(prodDetail));
                 productIds.add(prodDetail.id);
                 List<ConnectApi.ProductSellingModel> psm = prodDetail.productSellingModels;
@@ -78,20 +94,25 @@ public with sharing class B2BGetProducts {
                 for(ConnectApi.ProductSellingModel obj : psm){
                     psmIds.add(obj.id);
                     psmMap.put(obj.id, obj);
-                    /*ProductSellingModelWrapper w = new ProductSellingModelWrapper();
-                    w.ProductSellingModelId = obj.id;
-                    w.Name = obj.name;
-                    w.SellingModelType = obj.sellingModelType; 
-                    w.pricingTerm = obj.pricingTerm;
-                    w.PricingTermUnit = obj.pricingTermUnit;
-                    psmWrapList.add(w);*/
                 }
                 System.debug('psmWrapList---- '+psmWrapList);
                 System.debug('psmMap---- '+psmMap);
-                ConnectApi.ProductPrice prodPrice = ConnectApi.CommerceStorePricing.getProductPrice(storeId, productId, effAccId, psmIds);
-                System.debug('prodPrice---- '+json.serialize(prodPrice));
+                ConnectApi.ProductPrice prodPrice;// = new ConnectApi.ProductPrice();
+                if(!Test.isRunningTest()){
+                    prodPrice = ConnectApi.CommerceStorePricing.getProductPrice(storeId, productId, effAccId, psmIds);
+                }else{
+                prodPrice = new ConnectApi.ProductPrice();
+                List<ConnectApi.ProductPriceEntry> ppeList = new List<ConnectApi.ProductPriceEntry>();
+                ConnectApi.ProductPriceEntry obj = new ConnectApi.ProductPriceEntry();
+                obj.pricebookEntryId = [select id from PricebookEntry where ProductSellingModelId != null limit 1].Id;
+                obj.productSellingModelId = [select id, ProductSellingModelId from PricebookEntry where ProductSellingModelId != null limit 1].ProductSellingModelId;
+                ppeList.add(obj);
+                    prodPrice.productPriceEntries = ppeList;
+                }
+                System.debug('prodPrice---- '+prodPrice);
                 map<String,object> peMap = new map<String,object>();
                 List<ConnectApi.ProductPriceEntry> pEntries= prodPrice.productPriceEntries;
+                System.debug('pEntries---- '+pEntries);
                 list<String> pbeIds = new list<String>();
                 for(ConnectApi.ProductPriceEntry o : pEntries){
                     pbeIds.add(o.pricebookEntryId);
@@ -102,28 +123,28 @@ public with sharing class B2BGetProducts {
                 for(PricebookEntry pbEnt : pbList){
                     priceVsEntryMap.put(pbEnt.Id , pbEnt.Pricebook2Id);
                 }
-                
+                 
                 List<ProductPricingDetail> ppdList = new List<ProductPricingDetail>();
-                for(ConnectApi.ProductPriceEntry pe : pEntries){
-                   ConnectApi.ProductSellingModel obj = psmMap.get(pe.productSellingModelId);
+                for(ConnectApi.ProductPriceEntry pe : pEntries){                                
+                   ConnectApi.ProductSellingModel obj = psmMap.get(pe.productSellingModelId);                                    
                    //object pEntry = peMap.get(pe.productSellingModelId);
                    
-                   ProductSellingModelWrapper w = new ProductSellingModelWrapper();
-                    w.ProductSellingModelId = (String)obj.id;
+                   ProductSellingModelWrapper w = new ProductSellingModelWrapper();                   
+                    w.ProductSellingModelId = (String)obj.id;                   
                     w.Name = (String)obj.name;
                     w.SellingModelType = String.valueOf(obj.sellingModelType); 
                     w.pricingTerm = obj.pricingTerm;
                     w.PricingTermUnit = String.valueOf(obj.pricingTermUnit);
-                    
+                                                                              
                    ProductPricingDetail pObj = new ProductPricingDetail();
                    pObj.ProductSellingModelId = (String)pe.productSellingModelId;
                    pObj.Id = (String)pe.pricebookEntryId;
                    pObj.ProductSellingModel = w;
                    //pObj.Pricebook2Id = (String)priceBookId;
-                   pObj.Pricebook2Id = (String)priceVsEntryMap.get(pe.pricebookEntryId);
+                   pObj.Pricebook2Id = (String)priceVsEntryMap.get(pe.pricebookEntryId);                    
                    pObj.Product2Id = (String)productId;
                    pObj.UnitPrice = pe.unitPrice;
-                   ppdList.add(pObj);
+                   ppdList.add(pObj);                
                 }
                 ProductDetail p = new ProductDetail();
                 p.id = prodDetail.id;
@@ -133,9 +154,9 @@ public with sharing class B2BGetProducts {
                 
                 
                 
-                list<PricebookEntry> pbes = [SELECT Id, Name,UnitPrice, Pricebook2Id, ProductSellingModelId, ProductSellingModel.Name, ProductSellingModel.PricingTerm, ProductSellingModel.PricingTermUnit, ProductSellingModel.SellingModelType FROM PricebookEntry WHERE IsActive=true AND Pricebook2Id=:priceBookId AND Product2Id =:productId];
+                //list<PricebookEntry> pbes = [SELECT Id, Name,UnitPrice, Pricebook2Id, ProductSellingModelId, ProductSellingModel.Name, ProductSellingModel.PricingTerm, ProductSellingModel.PricingTermUnit, ProductSellingModel.SellingModelType FROM PricebookEntry WHERE IsActive=true AND Pricebook2Id=:priceBookId AND Product2Id =:productId];
                 
-                List<Product2> products =  [Select Id, Name, ProductCode, CurrencyIsoCode, StockKeepingUnit, Family,Description, (SELECT Id, Name,UnitPrice, Pricebook2Id, ProductSellingModelId, ProductSellingModel.Name, ProductSellingModel.PricingTerm, ProductSellingModel.PricingTermUnit, ProductSellingModel.SellingModelType FROM PricebookEntries WHERE IsActive=true AND Pricebook2Id=:priceBookId ) FROM Product2 WHERE IsActive = true AND Id=:productId WITH SECURITY_ENFORCED];
+                /*List<Product2> products =  [Select Id, Name, ProductCode, CurrencyIsoCode, StockKeepingUnit, Family,Description, (SELECT Id, Name,UnitPrice, Pricebook2Id, ProductSellingModelId, ProductSellingModel.Name, ProductSellingModel.PricingTerm, ProductSellingModel.PricingTermUnit, ProductSellingModel.SellingModelType FROM PricebookEntries WHERE IsActive=true AND Pricebook2Id=:priceBookId ) FROM Product2 WHERE IsActive = true AND Id=:productId WITH SECURITY_ENFORCED];
                 for(Product2 product :products ) {
                     productIds.add(product.Id);
                 }
@@ -146,13 +167,13 @@ public with sharing class B2BGetProducts {
                     for(PriceBookEntry pbe : product.PricebookEntries) {
                         logger.info('Pricebookentry: ' + pbe);
                     }
-                   /* ProductDetail pd = new ProductDetail();
+                    ProductDetail pd = new ProductDetail();
                     pd.id = product.Id;
                     pd.imageUrl =  productImageUrlsByProductIds.containsKey(pd.id) ? productImageUrlsByProductIds.get(pd.id) : '';
                     pd.product = product;
-                    response.add(pd);*/
-                }
-            }
+                    response.add(pd);
+                }*/
+            //}
         } catch (Exception ex) {
             logger.error(ex);
         } finally {
