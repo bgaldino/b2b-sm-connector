@@ -358,7 +358,7 @@ global with sharing class RSM_PaymentMethod {
             String endPointUrl;
             if(String.isNotBlank(baseUrl)){
                 //endPointUrl = baseUrl + '/services/apexrest/r1sm/B2B_updateBuyerInfo/';
-                endPointUrl = baseUrl + '/services/apexrest/B2B_updateBuyerInfo/';
+                endPointUrl = baseUrl + '/services/apexrest/r1sm/B2B_updateBuyerInfo/';
             }
 
             String accessTokenVal;
