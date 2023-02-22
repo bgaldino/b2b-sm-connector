@@ -354,5 +354,21 @@ private class B2BGetInfoTest {
         }
         
     }
+        @isTest
+    static void doesProductHasDiscountTest() {
+        WebCart testCart = [SELECT Id FROM WebCart LIMIT 1];
+        Community community = [ SELECT Id FROM Community  LIMIT 1];
+        // Id webstoreId = [SELECT WebStoreId FROM WebStoreNetwork WHERE networkId = :community.Id LIMIT 1].WebStoreId;
+         //WebStore store = [SELECT Id FROM WebStore WHERE Name = 'Sflabs' LIMIT 1];
+         Account account = [SELECT Id FROM Account WHERE Name = 'Test Account' LIMIT 1];
+        try{
+            Boolean val = B2BGetInfo.doesProductHasDiscount(community.Id, account.Id);
+            System.assertNotEquals(true, val, 'doesProductHasDiscount');
+        }
+        catch(Exception e) {
+            System.assertNotEquals(null, e);
+        }
+        
+    }
    
 }

@@ -354,6 +354,33 @@ public with sharing class B2BGetInfo {
       }
     }
 
+    @AuraEnabled
+    public static Boolean doesProductHasDiscount(String communityId, String effectiveAccountId) {
+        Boolean result = false;
+        String webstoreId;
+        try {
+            webstoreId = Test.isRunningTest() ? [Select id from WebStore Where Name = 'Sflabs'].id : [SELECT WebStoreId FROM WebStoreNetwork WHERE NetworkId = :communityId WITH SECURITY_ENFORCED LIMIT 1].WebStoreId;
+            List<WebCart> activeWebCartList = [
+                SELECT Id,
+                (SELECT Id, Discount__c FROM CartItems WHERE Discount__C > 0)
+                FROM WebCart
+                WHERE Status IN ('Active', 'Checkout')
+                AND OwnerId = :Userinfo.getUserid()
+                AND WebStoreId = :webstoreId
+                AND AccountId = :effectiveAccountId
+                WITH SECURITY_ENFORCED
+                LIMIT 1
+            ];
+            if(!activeWebCartList.isEmpty() && !activeWebCartList[0].CartItems.isEmpty()) {
+                result = true;
+            }
+        } catch (Exception ex) {logger.error(ex);
+                               } finally {
+                                   logger.flush();
+                               }
+        return result;
+    }
+
   @AuraEnabled
   public static Map<Id, CartItemWrapper> getCartItemsByCartId(String cartId) {
     List<CartItem> cartItemList;

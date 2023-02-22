@@ -178,12 +178,12 @@ public class RSM_PaymentMethodTest {
     } */
 
     static testMethod void buynowCalloutTest() {
-        User u =[Select id,ContactId from User WHERE firstname = 'ABC'];
-        Contact con = [Select id, name,firstname,lastName,email,phone from Contact Where id=:u.ContactId];
-        Test.setMock(HttpCalloutMock.class, new B2B_RestApiCallsMock());
-        Test.startTest();
-        RSM_paymentMethod.buynowCallout(con.firstname,con.lastname,con.Id,con.email,con.phone);
-        Test.stopTest();
-
-    }
+         User u =[Select id,ContactId from User WHERE firstname = 'ABC'];
+         Contact con = [Select id, name,firstname,lastName,email,phone from Contact Where id=:u.ContactId];
+         Test.setMock(HttpCalloutMock.class, new B2B_RestApiCallsMock());
+         Test.startTest();
+         RSM_paymentMethod.buynowCallout(con);
+         Test.stopTest();
+ 
+     }
 }

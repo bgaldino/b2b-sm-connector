@@ -1,5 +1,7 @@
 public with sharing class B2B_SetupConstants {
 
+    public static final String NAMESPACE = 'r1sm';
+
     public static final ServiceConfigurationModules MODULES = new ServiceConfigurationModules();
     public static final ServiceConfigurationConfigs CONFIGS = new ServiceConfigurationConfigs();
     public static final OracleApiConfigs ORACLE_CONFIGS = new OracleApiConfigs();

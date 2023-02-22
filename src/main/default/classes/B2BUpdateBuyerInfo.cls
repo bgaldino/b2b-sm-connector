@@ -13,16 +13,16 @@ global class B2BUpdateBuyerInfo {
             flowInput.put('firstname', firstName);
             flowInput.put('lastname', lastName);
             flowInput.put('phone', phoneNumber);
-           
             // Call  B2B BuyNow flow
-            String flowName =  'SM_Update_buyer_info';
-            Flow.Interview dynamicInterview = Flow.Interview.createInterview(flowName, flowInput);
-            dynamicInterview.start();
+            String flowName = RSM_Connector_Configuration__mdt.getInstance('Update_Buyer_Info').key__c;       //'SM_Update_buyer_info';
+            //Flow.Interview dynamicInterview = Flow.Interview.createInterview(flowName, flowInput);
+            //dynamicInterview.start();
+            RSM_Utils.callFlow(B2B_SetupConstants.NAMESPACE,flowName, flowInput);
         } catch (Exception ex) {
             System.debug('exception-- '+ex);
-            //logger.error(ex);
+            logger.error(ex);
         } finally {
-            //logger.flush();
+            logger.flush();
         }
        
     }
