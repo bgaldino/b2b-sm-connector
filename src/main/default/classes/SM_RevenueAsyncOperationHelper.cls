@@ -1,114 +1,60 @@
-public with sharing class B2B_SMOrderCopierHelper {
-    private static final DCM_Logger logger = DCM_Logger.getInstance(B2B_SetupConstants.CHECKOUT_FLOW);
+public with sharing class SM_RevenueAsyncOperationHelper {
+    private static final DCM_Logger logger = DCM_Logger.getInstance(B2B_SetupConstants.ASSET_NOTIFICATION);
 
-    public static void cloneSmOrderToCheckoutOrder(Set<Id> orderIds){
+    //asset failure email.
+    public static void sendCancelAssetFailureEmail(RevenueAsyncOperation rao, RevenueTransactionErrorLog error){
+        System.debug('send Cancel Asset Failure Email');
+
+        String toaddress = getContactEmailByAssetId(error.PrimaryRecordId);
+        if(toaddress != null) {
+            sendEmail(String.format('{0} Asset cannot be cancelled.', new String[]{error.PrimaryRecord.Name}), error.ErrorMessage + ' Please contact your administrator.', toaddress);
+        }
+    }
+    public static void sendRenewAssetFailureEmail(RevenueAsyncOperation rao, RevenueTransactionErrorLog error){
+        System.debug('send renew Asset Failure Email');
+
+        String toaddress = getContactEmailByAssetId(error.PrimaryRecordId);
+        if(toaddress != null) {
+            sendEmail(String.format('{0} Asset cannot be renewed.', new String[]{error.PrimaryRecord.Name}), error.ErrorMessage + ' Please contact your administrator.', toaddress);
+        }
+    }
+
+    private static void sendEmail(String subject, String body, String toaddress){
         try {
-            for(Id orderId : orderIds){
-                createNewCheckoutOrder(orderId);
-            }
-        } catch (Exception ex) {
-            logger.error(ex);
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            String[] toaddresses = new String[] {toaddress}; 
+            
+            email.setToAddresses(toAddresses);
+            email.setSubject(subject);
+            email.setPlainTextBody(body);
+            
+            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
+        } catch(Exception e) {logger.error(e);
         } finally {
             logger.flush();
         }
     }
 
-    public static void createNewCheckoutOrder(Id orderId){
+    private static String getContactEmailByAssetId(String assetId) {
+        List<Asset> assetList = new List<Asset>(); 
+
         try {
-            Date todayDate = Date.today();
-            Order subscriptionOrder = [SELECT id,Cart__c,AccountId,OwnerId,SalesStoreId,PoNumber,Pricebook2Id,
-                                       CustomerAuthorizedById, CustomerAuthorizedDate,CompanyAuthorizedById,CompanyAuthorizedDate,
-                                       BillToContactId,ShipToContactId,BillingEmailAddress,BillingPhoneNumber,BillingStreet, BillingCity,
-                                       BillingState, BillingPostalCode,BillingCountry,BillingLatitude, BillingLongitude, ShippingStreet, ShippingCity,
-                                       ShippingState, ShippingPostalCode,ShippingCountry,ShippingLatitude, ShippingLongitude, EffectiveDate,OrderedDate, Status, smOrder__c,
-                                       (SELECT Id, Type, TypeCode, Quantity, ListPrice, UnitPrice, 
-                                       NetUnitPrice, OrderId,ProductSellingModelId, OrderActionId, 
-                                       TaxTreatmentId, PricebookEntryId,EndDate, StartingPriceTotal, 
-                                       StartingUnitPriceSource, ServiceDate, PeriodBoundary, BillingFrequency2, 
-                                       PricingTermCount, ProductSellingModel.SellingModelType 
-                                       FROM OrderItems 
-                                       WHERE EndDate != :todayDate AND Quantity > 0 AND ProductSellingModel.SellingModelType != 'One-Time')
-                                       FROM Order WHERE (Order.LastCloneDate__c <= LAST_MONTH OR Order.LastCloneDate__c = NULL) AND id =: orderId WITH SECURITY_ENFORCED LIMIT 1];
-            Id cartDeliveryGroupId;
-            if(!Test.isRunningTest()){
-                cartDeliveryGroupId = [SELECT Id FROM CartDeliveryGroup WHERE DeliveryMethodId != null AND CartId = :subscriptionOrder.Cart__c WITH SECURITY_ENFORCED][0].Id;
-            }else{
-                cartDeliveryGroupId = [SELECT Id FROM CartDeliveryGroup WHERE Name = 'Default Delivery 1' WITH SECURITY_ENFORCED][0].Id;
-            }
-            List<CartDeliveryGroup> cartDeliveryGroups = [SELECT
-                                                          DesiredDeliveryDate,
-                                                          DeliverToName,
-                                                          ShippingInstructions,
-                                                          DeliverToStreet,
-                                                          DeliverToCity,
-                                                          DeliverToState,
-                                                          DeliverToPostalCode,
-                                                          DeliverToCountry,
-                                                          DeliverToLatitude,
-                                                          DeliverToLongitude,
-                                                          DeliveryMethodId
-                                                          FROM CartDeliveryGroup WHERE Id = :cartDeliveryGroupId
-                                                          WITH SECURITY_ENFORCED];
-            CartDeliveryGroup cartDeliveryGroup = cartDeliveryGroups[0];
-            Order orderCloneCopy = subscriptionOrder.clone(false,true);
-                orderCloneCopy.Order_Type__c = 'B2B Order';
-                orderCloneCopy.smOrder__c = subscriptionOrder.Id;
-                orderCloneCopy.EffectiveDate = todayDate.addDays(1);
-                orderCloneCopy.OrderedDate = todayDate.addDays(1);
-                orderCloneCopy.LastCloneDate__c = todayDate;
-                orderCloneCopy.Status = 'Draft';
-            DMLManager.insertAsSystem(orderCloneCopy);
-            subscriptionOrder.LastCloneDate__c = Date.today();
-            DMLManager.updateAsUser(subscriptionOrder);
-
-            Date desiredDeliveryDate = toDate(cartDeliveryGroup.DesiredDeliveryDate);
-            OrderDeliveryGroup orderDeliveryGroup = new OrderDeliveryGroup(
-                        DesiredDeliveryDate = desiredDeliveryDate,
-                        DeliverToName = cartDeliveryGroup.DeliverToName,
-                        DeliveryInstructions = cartDeliveryGroup.ShippingInstructions,
-                        DeliverToStreet = cartDeliveryGroup.DeliverToStreet,
-                        DeliverToCity = cartDeliveryGroup.DeliverToCity,
-                        DeliverToState = cartDeliveryGroup.DeliverToState,
-                        DeliverToPostalCode = cartDeliveryGroup.DeliverToPostalCode,
-                        DeliverToCountry = cartDeliveryGroup.DeliverToCountry,
-                        DeliverToLatitude = cartDeliveryGroup.DeliverToLatitude,
-                        DeliverToLongitude = cartDeliveryGroup.DeliverToLongitude,
-                        OrderDeliveryMethodId = cartDeliveryGroup.DeliveryMethodId,
-                        OrderId = orderCloneCopy.Id
-            );
-            DMLManager.insertAsUser(orderDeliveryGroup);
-
-            Id orderActionId = mapAndInsertOrderAction(orderCloneCopy.id);
-
-            List<OrderItem> orderItemsList = new List<OrderItem>();
-            for(OrderItem items : subscriptionOrder.OrderItems){
-                OrderItem itemCopy = items.clone(false,true);
-                itemCopy.OrderId = orderCloneCopy.Id;
-                itemCopy.ServiceDate = todayDate.addDays(1);
-                itemCopy.OrderDeliveryGroupId = orderDeliveryGroup.Id;
-                itemCopy.OrderActionId = orderActionId;
-                itemCopy.UnitPrice = items.ListPrice;
-                if(items.ProductSellingModel.SellingModelType == 'TermDefined') {
-                    itemCopy.EndDate = System.today().addMonths(1);
-                }
-                orderItemsList.add(itemCopy);
-            }
-            DMLManager.insertAsSystem(orderItemsList);
-
-            orderCloneCopy.Status = 'Activated';
-            DMLManager.updateAsUser(orderCloneCopy);
-            if(!Test.isRunningTest()){
-                ConnectApi.OrderSummaryOutputRepresentation createdOrderSummary = createOrderSummary(orderCloneCopy.Id);   
-            }
-        } catch (Exception ex) {
-            system.debug('DEB:: ex.getStackTraceString(): ' + ex.getStackTraceString());
-            system.debug('DEB:: ex.getMessage(): ' + ex.getMessage());
-            logger.error(ex);
+            assetList = [
+                SELECT Id,
+                Contact.Email
+                FROM Asset
+                WHERE Id = :assetId
+                WITH SECURITY_ENFORCED
+                LIMIT 1
+            ];
+        } catch(Exception e) {logger.error(e);
         } finally {
             logger.flush();
         }
-    }
 
+        return assetList.isEmpty() ? null : assetList[0].Contact.Email;
+    }
+    
     @AuraEnabled(cacheable=true)
   public static ConnectApi.ProductDetail getProduct(
     String communityId,
@@ -374,7 +320,7 @@ public with sharing class B2B_SMOrderCopierHelper {
         String webstoreId ;
         if(Test.isRunningTest()) {
             webstoreId ='';
-            WebStore store =[Select id from WebStore Where Name = 'Sflabs' WITH SECURITY_ENFORCED];
+            WebStore store =[Select id from WebStore Where Name = 'Sflabs'];
             webstoreId = store.id;
             ConnectApi.ProductPrice ConProdPrice = new ConnectApi.ProductPrice();
             ConProdPrice.unitPrice='10.00';
@@ -542,41 +488,4 @@ public with sharing class B2B_SMOrderCopierHelper {
     @AuraEnabled
     public String productSellingModel {get;set;}
   }
-
-    private static Date toDate(DateTime dt) {
-        if (dt != null) {
-            return Date.newinstance(dt.year(), dt.month(), dt.day());
-        }
-        
-        return null;
-    }
-	@TestVisible
-    private static Id mapAndInsertOrderAction(Id orderId) {
-        try {
-            OrderAction action = new OrderAction(OrderId = orderId, Type = 'New Sale');
-            DMLManager.insertAsUser(action);
-            return action.Id;
-        } catch (Exception ex) {
-            logger.error(ex);
-            return null;
-        } finally {
-            logger.flush();
-        }
-    }
-	@TestVisible
-    private static ConnectApi.OrderSummaryOutputRepresentation createOrderSummary(String orderId){
-        try {
-            Map<String,Object> result = new Map<String,Object>();
-            ConnectApi.OrderSummaryInputRepresentation osir = new ConnectApi.OrderSummaryInputRepresentation();
-            osir.orderId = orderId;
-            osir.orderLifeCycleType = 'UNMANAGED';
-            ConnectApi.OrderSummaryOutputRepresentation osor = ConnectApi.OrderSummaryCreation.createOrderSummary(osir);
-            return osor;
-        } catch (Exception ex) {
-            logger.error(ex);
-            return null;
-        } finally {
-            logger.flush();
-        } 
-    }
 }

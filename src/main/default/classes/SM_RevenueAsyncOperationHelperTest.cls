@@ -1,88 +1,55 @@
 @isTest
-public class B2B_SMOrderCopierHelperTest {
-    
-	@testSetup
-    public static void setup(){
-        TestDataFactory.createDataSMOrder();
-        WebCart wc = [Select id, Name from Webcart where Name = 'Cart'];
-        Order o = [Select id,Status from Order where Status = 'Draft']; 
-        /*Account ac = B2BTestFactory.addNewAccount('testName', true);
-Product2 p = B2BTestFactory.creteProduct2(True);
-Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
-        /*Id standardId = test.getStandardPricebookId();
-        Product2 producto = [select id from Product2 where Name = 'Test Product1'];		//getProduct2();
-        List<PricebookEntry> entryList = [select product2id,pricebook2Id from  PricebookEntry where product2id =: producto.id and pricebook2Id = :standardId limit 1];
-        PricebookEntry one;
-        if(entryList.isEmpty()) {
-            one = new PricebookEntry();
-            one.pricebook2Id = standardId;
-            one.product2id = producto.id;
-            one.unitprice = 1249.0;
-            one.isactive = true;
-            insert one; 
+public class SM_RevenueAsyncOperationHelperTest {
+
+    @testSetup
+    static void setup(){
+        System.runAs(RSM_TestEnvironment.portalAccountOwner) {
+            TestDataFactory.createData();
+            String userId = UserInfo.getUserId() ;
+            User u =[Select Id, AccountId from User Where FirstName = 'ABCD'];
+            Account acc = [Select Id from Account  LIMIT 1];
+            Product2 product =[SELECT Id, Name, IsActive, ProductCode, Description from Product2 WHERE Name='Test Product1' LIMIT 1 ];
+            ProductSellingModel model = [SELECT ID from ProductSellingModel WHERE Name = 'Evergreen Monthly'LIMIT 1];
+            ProrationPolicy prorationPolicy =[SELECT Id from ProrationPolicy WHERE Name = 'TestProrationPolicy' LIMIT 1];
+            ProductSellingModelOption modelOption =[SELECT ID from ProductSellingModelOption LIMIT 1];
+            Contact cont = [SELECT Id FROM Contact WHERE AccountId = :acc.Id LIMIT 1];
             
-        } else {one = entryList[0];}
-        
-        List<OrderItem> itemList = new List<OrderItem>();
-        OrderItem orderItemObj = new OrderItem();
-        orderItemObj.OrderId            = o.id;
-        orderItemObj.Quantity           = 24; 
-        orderItemObj.UnitPrice          = 240;
-        orderItemObj.Product2id         = producto.id;
-        orderItemObj.PricebookEntryId   = one.id;
-        insert orderItemObj;
-        
-        OrderItem orderItemObj1 = new OrderItem();
-        orderItemObj1.OrderId            = o.id;
-        orderItemObj1.Quantity           = 24; 
-        orderItemObj1.UnitPrice          = 240;
-        orderItemObj1.Product2id         = producto.id;
-        orderItemObj1.PricebookEntryId   = one.id;
-        insert orderItemObj1;
-        
-        
-        o.Cart__c = wc.Id;
-        update o;*/
-        
+            Asset asset = new Asset(Name='Test Product2',
+                                    AccountId= u.AccountId,
+                                    ContactId = cont.Id,
+                                    Status='Active',
+                                    Product2Id = product.Id,
+                                    IsInternal =false,
+                                    IsCompetitorProduct =false,
+                                    Quantity = 3);
+            insert asset;
+        }
     }
-    
-    @isTest
-    static void cloneSmOrderToCheckoutOrderTest(){
-		Set<Id> ordIds = new Set<Id>();
-        //Order o = [Select id from Order where Name = 'Test' ];
-        List<Order> o = [Select id,Status,Cart__c,Name from Order where Status = 'Draft']; 
-        ordIds.add(o[0].Id);
+
+    @isTest static void test_sendCancelAssetFailureEmail() {
+        RevenueTransactionErrorLog err = new RevenueTransactionErrorLog();
+        err.PrimaryRecordId = [SELECT Id FROM Asset LIMIT 1].Id;
+        err.ErrorMessage = 'test error message';
+
         Test.startTest();
-        B2B_SMOrderCopierHelper.cloneSmOrderToCheckoutOrder(ordIds);
-        System.assertNotEquals(o.size(), 0);
-        Test.stopTest();
-    }
-    
-    @isTest
-    static void mapAndInsertOrderActionTest(){
-        Set<Id> ordIds = new Set<Id>();
-        //Order o = [Select id from Order where Name = 'Test' ];
-        List<Order> o = [Select id,Status,Cart__c,Name from Order where Status = 'Draft']; 
-        ordIds.add(o[0].Id);
-        Test.startTest();
-        B2B_SMOrderCopierHelper.mapAndInsertOrderAction(Null);
-		System.assertNotEquals(o.size(), 0);
-        Test.stopTest();
-    }
-    
-    @isTest
-    static void createOrderSummaryTest(){
-        Set<Id> ordIds = new Set<Id>();
-        //Order o = [Select id from Order where Name = 'Test' ];
-        List<Order> o = [Select id,Status,Cart__c,Name from Order where Status = 'Draft']; 
-        ordIds.add(o[0].Id);
-        Test.startTest();
-        B2B_SMOrderCopierHelper.createOrderSummary(Null);
-		System.assertNotEquals(o.size(), 0);
+        System.assertEquals(0, Limits.getEmailInvocations());
+        SM_RevenueAsyncOperationHelper.sendCancelAssetFailureEmail(null, err);
+        System.assertEquals(1, Limits.getEmailInvocations());
         Test.stopTest();
     }
 
-    
+    @isTest static void test_sendRenewAssetFailureEmail() {
+        RevenueTransactionErrorLog err = new RevenueTransactionErrorLog();
+        err.PrimaryRecordId = [SELECT Id FROM Asset LIMIT 1].Id;
+        err.ErrorMessage = 'test error message';
+
+		Test.startTest();
+        System.assertEquals(0, Limits.getEmailInvocations());
+        SM_RevenueAsyncOperationHelper.sendRenewAssetFailureEmail(null, err);
+        System.assertEquals(1, Limits.getEmailInvocations());
+        Test.stopTest();
+    }
+
     @isTest
     static void getProductTest() {
          String networkId = Network.getNetworkId();
@@ -91,7 +58,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
          WebStore store = [SELECT Id FROM WebStore WHERE Name = 'Sflabs' LIMIT 1];
          Account account = [SELECT Id FROM Account WHERE Name = 'Test Account' LIMIT 1];
          Product2 productToSearch = [SELECT Id FROM Product2 WHERE Name = 'Test Product1' LIMIT 1];
-         ConnectApi.ProductDetail prodDetail = B2B_SMOrderCopierHelper.getProduct(community.Id, productToSearch.Id, account.Id);
+         ConnectApi.ProductDetail prodDetail = SM_RevenueAsyncOperationHelper.getProduct(community.Id, productToSearch.Id, account.Id);
          System.assertNotEquals(null, prodDetail);
       
      
@@ -108,7 +75,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
        // ConnectApi.CartSummary cartSummary = B2BGetInfo.getCartSummary(store, account);
       // ConnectApi.CartSummary cartSummary = new ConnectApi.CartSummary();
        // System.assertNotEquals(null, cartSummary);
-        ConnectApi.Wishlist wishlist = B2B_SMOrderCopierHelper.createAndAddToList(store, productToSearch.id ,wishlistName,account);
+        ConnectApi.Wishlist wishlist = SM_RevenueAsyncOperationHelper.createAndAddToList(store, productToSearch.id ,wishlistName,account);
         System.assertNotEquals(null, wishlist);
         
   
@@ -120,7 +87,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
          String activeCartOrId = 'current';
         String wishlistName ='Test';
          Product2 productToSearch = [SELECT Id FROM Product2 WHERE Name = 'Test Product1' LIMIT 1];
-        ConnectApi.CartSummary cartSummary = B2B_SMOrderCopierHelper.getCartSummary(store, account);
+        ConnectApi.CartSummary cartSummary = SM_RevenueAsyncOperationHelper.getCartSummary(store, account);
       // ConnectApi.CartSummary cartSummary = new ConnectApi.CartSummary();
        // System.assertNotEquals(null, cartSummary);
        // ConnectApi.Wishlist wishlist = B2BGetInfo.createAndAddToList(store, productToSearch.id ,wishlistName,account);
@@ -132,7 +99,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
     static void checkProductIsInStockTestTrue() {
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new B2BGetInfoTestMock());
-        Boolean result = B2B_SMOrderCopierHelper.checkProductIsInStock('productId');
+        Boolean result = SM_RevenueAsyncOperationHelper.checkProductIsInStock('productId');
         System.assertEquals(true, result);
         Test.stopTest();
     }
@@ -141,7 +108,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
     static void checkProductIsInStockTestFalse() {
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new B2BGetInfoTestMock());
-        Boolean result = B2B_SMOrderCopierHelper.checkProductIsInStock('');
+        Boolean result = SM_RevenueAsyncOperationHelper.checkProductIsInStock('');
         System.assertEquals(false, result);
         Test.stopTest();
     }
@@ -156,7 +123,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
         WebCart cart = [SELECT Id FROM WebCart WHERE Name = 'Cart'];
         List<CartItem> cartItemsBeforeUpdate = [SELECT Id FROM CartItem WHERE CartId = :cart.Id];
         String quantity = '1';
-        CartItem cartItem = B2B_SMOrderCopierHelper.addToCart(
+        CartItem cartItem = SM_RevenueAsyncOperationHelper.addToCart(
             store,
             prod.Name,
             (String)cart.id,
@@ -184,7 +151,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
         String quantity = '1';
         try{
                
-        CartItem cartItem = B2B_SMOrderCopierHelper.addToCart(
+        CartItem cartItem = SM_RevenueAsyncOperationHelper.addToCart(
             null,
             null,
             (String)cart.id,
@@ -223,7 +190,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
          String account = [SELECT Id FROM Account WHERE  Name = 'Test Account' LIMIT 1].Id;
          String productToSearch = [SELECT Id FROM Product2 WHERE Name = 'Test Product1' LIMIT 1].Id;
         Test.startTest();
-        ConnectApi.ProductPrice priceDetail = B2B_SMOrderCopierHelper.getProductPrice(store, productToSearch, account);
+        ConnectApi.ProductPrice priceDetail = SM_RevenueAsyncOperationHelper.getProductPrice(store, productToSearch, account);
          System.assertNotEquals(null, priceDetail);
       //  System.assertEquals(null, B2BGetInfo.getProductPrice(store, productToSearch, account));
         Test.stopTest();
@@ -239,7 +206,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
         List<CartItem> cartItemsBeforeUpdate = [SELECT Id FROM CartItem WHERE CartId = :cart.Id];
         System.debug('Cart Items amount before adding: ' + cartItemsBeforeUpdate.size());
         String quantity = '1';
-        CartItem cartItem = B2B_SMOrderCopierHelper.addToCart(
+        CartItem cartItem = SM_RevenueAsyncOperationHelper.addToCart(
             '',
             prod.Name,
             (String)cart.id,
@@ -263,7 +230,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
     @isTest
     static void productWithPricingModelTest() {
         ProductSellingModel model = [SELECT Id, Name FROM ProductSellingModel WHERE Name = 'Evergreen Monthly' LIMIT 1];
-        ProductSellingModel pbToCheck = B2B_SMOrderCopierHelper.productWithPricingModel(model.Name);
+        ProductSellingModel pbToCheck = SM_RevenueAsyncOperationHelper.productWithPricingModel(model.Name);
 
         System.assertEquals(model.Id, pbToCheck.Id);
     }
@@ -277,7 +244,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
         CartItem cartItemBeforeUpdate = [SELECT Id, Quantity FROM CartItem WHERE Name = 'Cart Item 1' LIMIT 1];
         System.debug('Cart Items Quantity before update: ' + cartItemBeforeUpdate.Quantity);
         String quantity = '3';
-        CartItem cartItem = B2B_SMOrderCopierHelper.updateCartItems(
+        CartItem cartItem = SM_RevenueAsyncOperationHelper.updateCartItems(
             networkId,
             acc.Id,
             cartItemBeforeUpdate.Id,
@@ -299,7 +266,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
         System.debug('Cart Items Quantity before update: ' + cartItemBeforeUpdate.Quantity);
         String quantity = '3';
         try{
-        CartItem cartItem = B2B_SMOrderCopierHelper.updateCartItems(
+        CartItem cartItem = SM_RevenueAsyncOperationHelper.updateCartItems(
             null,
             acc.Id,
             cartItemBeforeUpdate.Id,
@@ -320,7 +287,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
     @isTest
     static void getCheckoutUserTest() {
             try{
-        User user = B2B_SMOrderCopierHelper.getCheckoutUser(UserInfo.getUserId());
+        User user = SM_RevenueAsyncOperationHelper.getCheckoutUser(UserInfo.getUserId());
             System.debug(user);
                 System.assertNotEquals(null, user);
         }catch(Exception ex){
@@ -337,7 +304,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
             'statesByCountries' => B2BUtils.ListPicklistValuesByControllingValue(Account.BillingCountryCode, Account.BillingStateCode)
         };
 
-        Map<String, Object> mapToCheck = B2B_SMOrderCopierHelper.getCountriesAndStates();
+        Map<String, Object> mapToCheck = SM_RevenueAsyncOperationHelper.getCountriesAndStates();
 
         List<Object> listOfCountriesToCompareWith = (List<Object>) mapToCompareWith.get('countries');
         Map<String, List<Object>> listOfStatesByCountriesToCompareWith = (Map<String, List<Object>>) mapToCompareWith.get('statesByCountries');
@@ -360,7 +327,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
         String zipCode = '34562';
         WebCart cartToUpdate = [SELECT Id FROM WebCart WHERE Name = 'Cart' LIMIT 1];
         
-        B2B_SMOrderCopierHelper.setBillingAddress(
+        SM_RevenueAsyncOperationHelper.setBillingAddress(
             street,
             country, 
             state, 
@@ -381,7 +348,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
         String zipCode = '34562';
         String Name = 'Test name';
         WebCart cartToUpdate = [SELECT Id FROM WebCart WHERE Name = 'Cart' LIMIT 1];
-        B2B_SMOrderCopierHelper.setShippingAddress(
+        SM_RevenueAsyncOperationHelper.setShippingAddress(
             street,
             country, 
             state, 
@@ -404,7 +371,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
         String Name = 'Test name';
         WebCart cartToUpdate = [SELECT Id, (SELECT Id, Street__c, Country__c, City__c, Postal_Code__c, State__c, Name FROM B2B_Shipping_Addresses__r LIMIT 1) FROM WebCart WHERE Name = 'Cart' LIMIT 1];
         delete cartToUpdate.B2B_Shipping_Addresses__r[0];
-        B2B_SMOrderCopierHelper.setShippingAddress(
+        SM_RevenueAsyncOperationHelper.setShippingAddress(
             street,
             country, 
             state, 
@@ -421,7 +388,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
     static void getCartItemsByCartIdTest() {
         WebCart testCart = [SELECT Id FROM WebCart LIMIT 1];
         try{
-            Map<Id, B2B_SMOrderCopierHelper.CartItemWrapper> cartItemByCartIdMap = B2B_SMOrderCopierHelper.getCartItemsByCartId(testCart.Id);
+            Map<Id, SM_RevenueAsyncOperationHelper.CartItemWrapper> cartItemByCartIdMap = SM_RevenueAsyncOperationHelper.getCartItemsByCartId(testCart.Id);
             System.assertNotEquals(true, cartItemByCartIdMap.isEmpty(), 'Cart should have cart items');
         }
         catch(Exception e) {
@@ -437,7 +404,7 @@ Order ord = B2BTestFactory.addNewOrder(ac.Id, 'recordType');*/
          //WebStore store = [SELECT Id FROM WebStore WHERE Name = 'Sflabs' LIMIT 1];
          Account account = [SELECT Id FROM Account WHERE Name = 'Test Account' LIMIT 1];
         try{
-            Boolean val = B2B_SMOrderCopierHelper.doesProductHasDiscount(community.Id, account.Id);
+            Boolean val = SM_RevenueAsyncOperationHelper.doesProductHasDiscount(community.Id, account.Id);
             System.assertNotEquals(true, val, 'doesProductHasDiscount');
         }
         catch(Exception e) {

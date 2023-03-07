@@ -85,4 +85,11 @@
         <shortDescription>RSM Discounted Webcart Change Error Message</shortDescription>
         <value>You can not change the cart as the Discount has been applied. If you want to add a new product or change a quantity please clear the Cart and request a new Discount</value>
     </labels>
+    <labels>
+        <fullName>RSM_Asset_Action_Success_Message</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>RSM Asset Action Success Message</shortDescription>
+        <value>Your request has been submitted, please check again after some time.</value>
+    </labels>
 </CustomLabels>
