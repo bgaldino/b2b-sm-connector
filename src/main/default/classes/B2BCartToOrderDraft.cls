@@ -342,6 +342,7 @@ global with sharing class B2BCartToOrderDraft {
             // Get the cart items needed to populate the order items and adjustments
             List<CartItem>  cartItems = [SELECT
                                          AdjustmentAmount,
+                                         TotalAdjustmentAmount,
                                          Product2Id,
                                          Product2.TaxPolicyId,
                                          B2B_PriceBookEntry_Id__c,
@@ -450,7 +451,7 @@ global with sharing class B2BCartToOrderDraft {
                         //if(B2BUtils.fetchConfigByValue('CloneB2BOrderMonthly') != 'Yes') {
                         if(RSM_Connector_Configuration__mdt.getInstance('Clone_B2B_Order_Monthly').key__c != 'Yes') {
                             orderItem.EndDate = System.today().addMonths(12).addDays(-1);
-                            orderItem.UnitPrice = unitPrice * 12;
+                            //orderItem.UnitPrice = unitPrice * 12; //@surya- we dont need to do this anymore, doing the same on cart now..
                         } else {
                             orderItem.EndDate = System.today().addMonths(1).addDays(-1);
                         }
@@ -546,10 +547,10 @@ global with sharing class B2BCartToOrderDraft {
      * @return The adjustment amount (0, if there is no adjustment).
      */
     private static Decimal getAdjustmentAmount(CartItem cartItem) {
-        if (cartItem.AdjustmentAmount == null) {return 0;
+        if (cartItem.TotalAdjustmentAmount == null) {return 0;
         }
 
-        return cartItem.AdjustmentAmount;
+        return cartItem.TotalAdjustmentAmount;
     }
 
     /**
