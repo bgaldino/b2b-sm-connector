@@ -1,26 +1,90 @@
 {
-    "packageDirectories": [
-        {
-            "path": "src",
-            "package": "Subscription Management Accelerator",
-            "versionName": "Winter 23",
-            "versionNumber": "0.1.0.NEXT",
-            "default": true,
-            "definitionFile": "config/project-scratch-def.json",
-            "unpackagedMetadata": {
-                "path": "dependencies/unmanaged/profiles"
-            }
-        },
-        {
-            "path": "dependencies/unmanaged/profiles",
-            "default": false
-        }
-    ],
-    "namespace": "r1sm",
-    "sfdcLoginUrl": "https://login.salesforce.com",
-    "sourceApiVersion": "56.0",
-    "packageAliases": {
-        "Subscription Management Accelerator": "0Ho5b0000008OJwCAM",
-        "Subscription Management Accelerator@0.1.0-1": "04t5b0000027PobAAE"
+  "packageDirectories": [
+    {
+      "path": "src",
+      "default": true,
+      "package": "Subscription Management With Namespace",
+      "versionName": "ver 0.1",
+      "versionNumber": "0.1.0.NEXT",
+      "unpackagedMetadata": {
+        "path": "dependencies/unmanaged/profiles"
+      }
+    },
+    {
+      "path": "dependencies\\unmanaged\\profiles",
+      "default": false
     }
+  ],
+  "namespace": "r1sm",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "56.0",
+  "packageAliases": {
+    "Subscription Management With Namespace": "0Ho5b0000008OJhCAM",
+    "Subscription Management With Namespace@0.1.0-1": "04t5b0000027Pn4AAE",
+    "Subscription Management With Namespace@0.1.0-2": "04t5b0000027Pn9AAE",
+    "Subscription Management With Namespace@0.1.0-4": "04t5b0000027PnJAAU",
+    "Subscription Management With Namespace@0.1.0-5": "04t5b0000027PnOAAU",
+    "Subscription Management With Namespace@0.1.0-6": "04t5b0000027PnTAAU",
+    "Subscription Management With Namespace@0.1.0-7": "04t5b0000027PnYAAU",
+    "Subscription Management With Namespace@0.1.0-8": "04t5b0000027PniAAE",
+    "Subscription Management With Namespace@0.1.0-9": "04t5b0000027PnnAAE",
+    "Subscription Management With Namespace@0.1.0-10": "04t5b0000027PnsAAE",
+    "Subscription Management With Namespace@0.1.0-11": "04t5b0000027PnxAAE",
+    "Subscription Management With Namespace@0.1.0-12": "04t5b0000027Po2AAE",
+    "Subscription Management With Namespace@0.1.0-13": "04t5b0000027Po7AAE",
+    "Subscription Management With Namespace@0.1.0-14": "04t5b0000027PoHAAU",
+    "Subscription Management With Namespace@0.1.0-15": "04t5b0000027PoMAAU",
+    "Subscription Management With Namespace@0.1.0-16": "04t5b0000027PoRAAU",
+    "Subscription Management With Namespace@0.1.0-17": "04t5b0000027PoWAAU",
+    "Subscription Management With Namespace@0.1.0-18": "04t5b0000027PogAAE",
+    "Subscription Management With Namespace@0.1.0-19": "04t5b0000027PolAAE",
+    "Subscription Management With Namespace@0.1.0-21": "04t5b0000027PpyAAE",
+    "Subscription Management With Namespace@0.1.0-23": "04t5b0000027PqcAAE",
+    "Subscription Management With Namespace@0.1.0-25": "04t5b0000027PqrAAE",
+    "Subscription Management With Namespace@0.1.0-28": "04t5b0000027PrBAAU",
+    "Subscription Management With Namespace@0.1.0-29": "04t5b0000027PrpAAE",
+    "Subscription Management With Namespace@0.1.0-30": "04t5b0000027PruAAE",
+    "Subscription Management With Namespace@0.1.0-31": "04t5b0000027PrzAAE",
+    "Subscription Management With Namespace@0.1.0-33": "04t5b0000027PwRAAU",
+    "Subscription Management With Namespace@0.1.0-34": "04t5b0000027PwWAAU",
+    "Subscription Management With Namespace@0.1.0-35": "04t5b0000027PwgAAE",
+    "Subscription Management With Namespace@0.1.0-36": "04t5b0000027PwlAAE",
+    "Subscription Management With Namespace@0.1.0-37": "04t5b0000027PwqAAE",
+    "Subscription Management With Namespace@0.1.0-39": "04t5b0000027Px0AAE",
+    "Subscription Management With Namespace@0.1.0-41": "04t5b0000027PxFAAU",
+    "Subscription Management With Namespace@0.1.0-42": "04t5b0000027PxKAAU",
+    "Subscription Management With Namespace@0.1.0-43": "04t5b0000027PxPAAU",
+    "Subscription Management With Namespace@0.1.0-44": "04t5b0000027PxUAAU",
+    "Subscription Management With Namespace@0.1.0-45": "04t5b0000027PxtAAE",
+    "Subscription Management With Namespace@0.1.0-47": "04t5b0000027PyrAAE",
+    "Subscription Management With Namespace@0.1.0-48": "04t5b0000027PywAAE",
+    "Subscription Management With Namespace@0.1.0-49": "04t5b0000027Pz1AAE",
+    "Subscription Management With Namespace@0.1.0-50": "04t5b0000027PzGAAU",
+    "Subscription Management With Namespace@0.1.0-51": "04t5b0000027PzLAAU",
+    "Subscription Management With Namespace@0.1.0-52": "04t5b0000027PzQAAU",
+    "Subscription Management With Namespace@0.1.0-53": "04t5b0000027PzVAAU",
+    "Subscription Management With Namespace@0.1.0-54": "04t5b0000027PzaAAE",
+    "Subscription Management With Namespace@0.1.0-55": "04t5b0000027PzfAAE",
+    "Subscription Management With Namespace@0.1.0-56": "04t5b0000027PzpAAE",
+    "Subscription Management With Namespace@0.1.0-57": "04t5b0000027PzzAAE",
+    "Subscription Management With Namespace@0.1.0-58": "04t5b0000027Q0OAAU",
+    "Subscription Management With Namespace@0.1.0-59": "04t5b0000027Q1bAAE",
+    "Subscription Management With Namespace@0.1.0-60": "04t5b0000027Q1lAAE",
+    "Subscription Management With Namespace@0.1.0-61": "04t5b0000027Q1vAAE",
+    "Subscription Management With Namespace@0.1.0-62": "04t5b0000027Q25AAE",
+    "Subscription Management With Namespace@0.1.0-63": "04t5b0000027Q2KAAU",
+    "Subscription Management With Namespace@0.1.0-64": "04t5b0000027Q2PAAU",
+    "Subscription Management With Namespace@0.1.0-65": "04t5b0000027Q2eAAE",
+    "Subscription Management With Namespace@0.1.0-66": "04t5b0000027Q2oAAE",
+    "Subscription Management With Namespace@0.1.0-67": "04t5b0000027Q2tAAE",
+    "Subscription Management With Namespace@0.1.0-68": "04t5b0000027Q2yAAE",
+    "Subscription Management With Namespace@0.1.0-69": "04t5b0000027Q3DAAU",
+    "Subscription Management With Namespace@0.1.0-70": "04t5b0000027Q3NAAU",
+    "Subscription Management With Namespace@0.1.0-71": "04t5b0000027Q3XAAU",
+    "Subscription Management With Namespace@0.1.0-72": "04t5b0000027Q3rAAE",
+    "Subscription Management With Namespace@0.1.0-73": "04t5b0000027Q3wAAE",
+    "Subscription Management With Namespace@0.1.0-74": "04t5b0000027Q4QAAU",
+    "Subscription Management With Namespace@0.1.0-75": "04t5b0000027Q4VAAU",
+    "Subscription Management With Namespace@0.1.0-76": "04t5b0000027Q4aAAE"
+  }
 }
