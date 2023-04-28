@@ -158,7 +158,7 @@ public with sharing class B2B_SubscriptionController {
         if(productPricingDomain.pricebookEntryId==null)
             return inputData;
         if(productPricingDomain.isRecurringProduct){
-            list<PricebookEntry>  priceBookEntryList = Test.isRunningTest() ? [SELECT Show_List_Price__c, B2B_Sub_Configuration__c, ActivePriceAdjustmentQuantity, Name, Id, Pricebook2Id, Product2Id FROM PricebookEntry where id=:productPricingDomain.pricebookEntryId] : [SELECT ActivePriceAdjustmentQuantity, Name, Id, Pricebook2Id, Product2Id FROM PricebookEntry where id=:productPricingDomain.pricebookEntryId];
+            list<PricebookEntry>  priceBookEntryList = Test.isRunningTest() ? [SELECT Show_List_Price__c, B2B_Sub_Configuration__c, ActivePriceAdjustmentQuantity, Name, Id, Pricebook2Id, Product2Id FROM PricebookEntry where id=:productPricingDomain.pricebookEntryId] : [SELECT ActivePriceAdjustmentQuantity, Name, Id, Pricebook2Id, Product2Id FROM PricebookEntry where id=:productPricingDomain.pricebookEntryId WITH SECURITY_ENFORCED];
             System.debug('priceBookEntryList---'+priceBookEntryList);
             if(priceBookEntryList.size() > 0){
                 String b2bconfigId = Test.isRunningTest() ? 'cofigId' : priceBookEntryList[0].B2B_Sub_Configuration__c;

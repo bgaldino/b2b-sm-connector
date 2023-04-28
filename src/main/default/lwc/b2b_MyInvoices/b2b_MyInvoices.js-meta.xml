@@ -11,5 +11,12 @@
         <target>lightningCommunity__Page</target>
         <target>lightning__RecordPage</target>
         <target>lightning__FlowScreen</target>
-    </targets>  
+    </targets> 
+    <targetConfigs>
+    <targetConfig targets="lightningCommunity__Default">
+        <property type="String" description="Url of Invoice logo" name="logoUrl" label="Logo URL" default="https://smdevtestenv-dev-ed.develop.file.force.com/servlet/servlet.FileDownload?file=015Dn000000zO2Y"/>
+        <property type="String" description="Specify the width of image (in integer)" name="width" label="Width" default="50"/>
+        <property type="String" description="Specify the height of image (in integer)" name="height" label="Height" default="50"/>
+    </targetConfig> 
+    </targetConfigs>
 </LightningComponentBundle>
